@@ -215,7 +215,11 @@ verified separately.
    multiple payers, save for later.
 3. **AI import:** file upload, recognition, drafts, review, duplicates, hybrid receipt.
 4. **Settlements:** multi-currency, balances, suggested transfers, two-step confirmation.
-5. **Launch readiness:** mobile UX, security, audit, tests, monitoring, AI limits, export.
+5. **Launch readiness:** mobile UX, security, audit, additional tests, monitoring, AI limits,
+   export.
+
+Financial logic and RLS tests are not deferred to stage 5: per constitution principle VII they
+are written together with the code, starting from stage 1.
 
 ## 15. Acceptance criteria
 
@@ -249,3 +253,7 @@ are to be defined after validating demand and AI costs.
 - Is restoring a previous allocation version needed in the MVP?
 - Is PDF export part of the first release, or is CSV enough?
 - Rules for closing a trip and edit restrictions after final settlement.
+- Testing tools: unit test runner for Angular (e.g. Vitest or Jest), property-based testing
+  (e.g. `fast-check`), RLS tests (e.g. pgTAP / `supabase test db`), e2e (e.g. Playwright).
+- Is a code coverage threshold needed, and is CI required from the first feature?
+- Are e2e tests part of the MVP, and to what extent (e.g. the acceptance criteria in §15)?
