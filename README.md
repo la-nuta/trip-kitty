@@ -11,6 +11,7 @@ transfers. The interface is available in English and Russian.
 - [MVP plan](docs/plan.md)
 - [Architecture diagram](docs/architecture/architecture.html)
 - [Project constitution](.specify/memory/constitution.md)
+- [Decision log](docs/decisions.md)
 
 ## Development
 

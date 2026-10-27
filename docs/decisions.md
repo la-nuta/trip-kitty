@@ -1,0 +1,76 @@
+# Decision Log
+
+Short records of project decisions: context, decision, consequences. Newest entries go at the
+bottom. Binding engineering rules live in the [constitution](../.specify/memory/constitution.md);
+this log explains *why* things are the way they are.
+
+## D1. Product name: TripKitty
+
+**Date:** 2026-10-25
+
+**Context.** The working title "Travel Expense Organizer" describes the product but is not a
+brand. The name should be short, work for both English- and Russian-speaking users, and convey
+"chipping in together" on a trip.
+
+**Options considered.**
+
+| Option | Finding | Verdict |
+|---|---|---|
+| Kvits | Pun on Russian «квиты» / English "call it quits" (both mean "we're even") | Not chosen |
+| AllSquare | Clear in English ("all square"), opaque for Russian speakers | Not chosen |
+| Tallio | Neutral, but says nothing about trips or debts | Not chosen |
+| ChipIn | Taken in the same niche: [Chip In by Moneywise](https://apps.apple.com/app/id592997652) (expense splitting), [ChipInPool](https://apps.apple.com/cd/app/chipinpool/id6741926843), US trademark application [CHIPIN 97320874](https://trademarks.justia.com/973/20/chipin-97320874.html) covering payment processing | Rejected |
+| TripChip | Taken in an adjacent niche: [TripChip](https://tripchip-prod.gigs.com/discover/en-US), a Brazilian travel eSIM brand; Chrome extension [TripChipper](https://chromewebstore.google.com/detail/coplmfnphahpcknbchcehdikbdieognn) (~200K users); in Russian "trip chip" reads as a travel SIM card | Rejected |
+| **TripKitty** | No app or trademark found by web search | **Chosen** |
+
+**Decision.** The product is named **TripKitty**; "travel expense organizer" is the tagline.
+
+**Consequences and known caveats.**
+- "Kitty" means both a kitten and a shared pot of money ("travel kitty"). In Russian «Китти»
+  reads as just a cute cat; the "shared pot" meaning is lost. Accepted; can be played up with a
+  cat mascot.
+- A classic kitty is a pooled fund paid in upfront, while TripKitty tracks who paid and who owes.
+  Close enough to accept.
+- English slang meaning of "kitty" is unlikely in the "Trip" + "Kitty" combination; Hello Kitty
+  associations are neutral-to-cute.
+- Competitor [Kittysplit](https://blog.kittysplit.com/expense-categories/) already uses "kitty"
+  in the travel expense niche.
+- Domains as of 2026-10-25: `tripkitty.com` is parked (registered 2017, possibly for sale),
+  `tripkitty.app` is registered, `tripkitty.io` was available.
+- The web search is not a legal trademark clearance; do one before a public launch.
+
+## D2. Documentation language: English
+
+**Date:** 2026-10-25
+
+**Decision.** All project documentation (constitution, specs, plans, tasks, README, this log)
+is written in English. The product interface stays bilingual (RU/EN) per constitution
+principle VI.
+
+**Consequences.** The MVP plan was translated to English (`docs/plan.md`); only the English
+architecture diagram is kept (`docs/architecture/architecture.html`).
+
+## D3. Spec-driven development with Spec Kit
+
+**Date:** 2026-10-25
+
+**Decision.** The project uses [Spec Kit](https://github.com/github/spec-kit) with the Claude
+Code integration and POSIX shell scripts (`specify init --here --integration claude --script
+sh`). Constitution v1.0.0 was adopted the same day.
+
+**Consequences.** Features go through `/speckit-specify` → `/speckit-clarify` →
+`/speckit-plan` → `/speckit-tasks` → `/speckit-implement`; every plan includes a Constitution
+Check.
+
+## Open items
+
+Not decisions yet; to be resolved during `/speckit-plan` for the relevant feature.
+
+- **Architecture diagram vs. constitution.** The diagram lists PWA support and SPA hosting on
+  Cloudflare Pages or Vercel; neither is in the constitution's technology stack. Decide and
+  update whichever document is wrong.
+- **Architecture diagram layout.** Automated checks pass, but two readability issues remain:
+  "transaction + version" (financial operations → PostgreSQL) crosses "trip subscription"
+  (Realtime → Angular SPA), and "receipt files" (Angular SPA → AI receipt import) has three
+  bends. Fix by repositioning nodes when the diagram is next updated.
+- **Testing tooling, coverage, CI, e2e scope** — see `docs/plan.md` §17.
