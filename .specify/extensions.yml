@@ -1,0 +1,11 @@
+# Spec Kit extension hooks. Read by /speckit-* commands before and after they run.
+# Command ids use dots; they are invoked with hyphens (speckit.git.feature → /speckit-git-feature).
+
+hooks:
+  before_specify:
+    - extension: git
+      command: speckit.git.feature
+      description: Create or switch to the feature branch NNN-short-name
+      prompt: Create a git branch for this feature?
+      optional: false
+      enabled: true
