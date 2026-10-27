@@ -1,0 +1,335 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "TripKitty — MVP architecture",
+    "output": ".archify/architecture-tripkitty-en-20261027-094407/tripkitty-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en"
+  },
+  "components": [
+    {
+      "id": "trip-members",
+      "type": "external",
+      "label": "Trip members",
+      "sublabel": "organizer, members, guests",
+      "icon": "person",
+      "pos": [
+        40,
+        380
+      ],
+      "size": [
+        170,
+        72
+      ]
+    },
+    {
+      "id": "angular-spa",
+      "type": "frontend",
+      "label": "Angular SPA",
+      "sublabel": "Signals · mobile-first · PWA",
+      "tag": "expense table",
+      "pos": [
+        300,
+        372
+      ],
+      "size": [
+        190,
+        88
+      ]
+    },
+    {
+      "id": "supabase-auth",
+      "type": "security",
+      "label": "Supabase Auth",
+      "sublabel": "account or anonymous guest",
+      "tag": "JWT → RLS",
+      "pos": [
+        300,
+        40
+      ],
+      "size": [
+        190,
+        72
+      ]
+    },
+    {
+      "id": "import-function",
+      "type": "backend",
+      "label": "AI receipt import",
+      "sublabel": "Edge Function · AI quotas",
+      "pos": [
+        640,
+        210
+      ],
+      "size": [
+        190,
+        72
+      ]
+    },
+    {
+      "id": "vision-api",
+      "type": "external",
+      "label": "AI Vision API",
+      "sublabel": "structured JSON",
+      "pos": [
+        640,
+        40
+      ],
+      "size": [
+        190,
+        72
+      ]
+    },
+    {
+      "id": "receipt-storage",
+      "type": "database",
+      "label": "Supabase Storage",
+      "sublabel": "private receipt files",
+      "pos": [
+        960,
+        210
+      ],
+      "size": [
+        190,
+        72
+      ]
+    },
+    {
+      "id": "postgres",
+      "type": "database",
+      "label": "PostgreSQL",
+      "sublabel": "RLS · versions · activity_log",
+      "tag": "money without float",
+      "pos": [
+        640,
+        380
+      ],
+      "size": [
+        190,
+        72
+      ]
+    },
+    {
+      "id": "realtime",
+      "type": "messagebus",
+      "label": "Supabase Realtime",
+      "sublabel": "trip changes",
+      "pos": [
+        960,
+        380
+      ],
+      "size": [
+        190,
+        72
+      ]
+    },
+    {
+      "id": "finance-function",
+      "type": "backend",
+      "label": "Financial operations",
+      "sublabel": "Edge Functions · permission checks",
+      "pos": [
+        640,
+        550
+      ],
+      "size": [
+        190,
+        72
+      ]
+    },
+    {
+      "id": "fx-rates",
+      "type": "external",
+      "label": "Exchange rates",
+      "sublabel": "ECB + fallback source",
+      "pos": [
+        640,
+        720
+      ],
+      "size": [
+        190,
+        72
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "SPA hosting: Cloudflare Pages or Vercel",
+      "wraps": [
+        "angular-spa"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "Supabase: data and server logic",
+      "wraps": [
+        "import-function",
+        "receipt-storage",
+        "postgres",
+        "realtime",
+        "finance-function"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "members-open-app",
+      "from": "trip-members",
+      "to": "angular-spa",
+      "label": "HTTPS",
+      "variant": "emphasis"
+    },
+    {
+      "id": "spa-sign-in",
+      "from": "angular-spa",
+      "to": "supabase-auth",
+      "label": "sign in · guest",
+      "variant": "security",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "spa-reads",
+      "from": "angular-spa",
+      "to": "postgres",
+      "label": "reads · RLS",
+      "variant": "emphasis"
+    },
+    {
+      "id": "spa-uploads",
+      "from": "angular-spa",
+      "to": "import-function",
+      "label": "receipt files",
+      "fromSide": "top",
+      "toSide": "left"
+    },
+    {
+      "id": "spa-finance",
+      "from": "angular-spa",
+      "to": "finance-function",
+      "label": "financial operations",
+      "fromSide": "bottom",
+      "toSide": "left"
+    },
+    {
+      "id": "import-recognize",
+      "from": "import-function",
+      "to": "vision-api",
+      "label": "recognition",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "import-store-file",
+      "from": "import-function",
+      "to": "receipt-storage",
+      "label": "originals"
+    },
+    {
+      "id": "import-drafts",
+      "from": "import-function",
+      "to": "postgres",
+      "label": "drafts",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "finance-commit",
+      "from": "finance-function",
+      "to": "postgres",
+      "label": "transaction + version",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "finance-rate",
+      "from": "finance-function",
+      "to": "fx-rates",
+      "label": "rate for date",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "db-changes",
+      "from": "postgres",
+      "to": "realtime",
+      "label": "changes"
+    },
+    {
+      "id": "realtime-push",
+      "from": "realtime",
+      "to": "angular-spa",
+      "label": "trip subscription",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "bottom"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Frontend",
+      "items": [
+        "Angular + Signals, mobile-first",
+        "Expense table on desktop, cards on phone",
+        "PWA: add to home screen without the App Store",
+        "Realtime subscription keeps the shared table current",
+        "UI in Russian and English: Transloco, formatting via Intl"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Server logic",
+      "items": [
+        "AI calls, financial operations and permission checks run server-side only",
+        "Critical changes run in a single transaction",
+        "Record version control: no silent overwrites",
+        "Idempotent import and confirmations"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Data",
+      "items": [
+        "trips, trip_members, invitations",
+        "import_batches, receipts, expenses, expense_items",
+        "expense_payments and expense_splits are stored independently",
+        "settlements, exchange_rates, activity_log",
+        "Money as integer minor units or NUMERIC",
+        "users stores the UI language; categories and statuses stored as codes, not text"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Security",
+      "items": [
+        "RLS on every trip table",
+        "Private storage and private document links",
+        "File type and size checks",
+        "Guests have a stable identity, required to confirm transfers"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Independent statuses",
+      "items": [
+        "Recognition: pending / processing / completed / failed",
+        "Review: draft / confirmed / rejected",
+        "Allocation: unallocated / allocated",
+        "Payment: unknown / unpaid / partially_paid / paid",
+        "Transfer: pending / sent / confirmed / rejected / cancelled"
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "After MVP",
+      "items": [
+        "Gmail, Google Drive, Telegram bot",
+        "Bank CSV import, Open Banking",
+        "Wise / Revolut payment links"
+      ]
+    }
+  ]
+}

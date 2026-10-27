@@ -1,0 +1,4 @@
+.archify/
+.DS_Store
+.idea/
+.claude/settings.local.json
