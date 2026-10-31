@@ -17,13 +17,12 @@ below and whose `SQLSTATE` is `P0001`. The client maps codes to translation keys
 |---|---|
 | `not_authenticated` | No session |
 | `profile_incomplete` | Caller has no display name |
-| `guest_not_allowed` | Caller is a guest (anonymous) |
+| `guest_not_allowed` | Caller is a guest (`auth.users.is_anonymous`, read from the table, not the JWT) |
 | `not_found` | Trip does not exist **or** caller has no access (same code on purpose, FR-019) |
 | `not_organizer` | Caller is a member but not the organizer |
 | `invalid_invitation` | Token unknown, malformed, or reset |
 | `trip_full` | Trip already has 20 active members |
 | `removed_from_trip` | Caller was removed by the organizer and is blocked |
-| `version_conflict` | Expected version is stale; reload and retry |
 | `cannot_remove_self` | Organizer tried to remove themselves |
 | `organizer_cannot_leave` | Organizer tried to leave |
 | `validation_failed` | Input breaks a rule; `detail` holds the field name (`name`, `dates`, `base_currency`, `display_name`) |
@@ -37,11 +36,12 @@ id.
 Errors: `not_authenticated`, `guest_not_allowed`, `profile_incomplete`, `validation_failed`.
 Requirements: FR-001, FR-001a, FR-002, FR-004, FR-007.
 
-### `update_trip(p_trip_id uuid, p_expected_version int, p_name text, p_start_date date, p_end_date date, p_base_currency text) → int`
+### `update_trip(p_trip_id uuid, p_name text, p_start_date date, p_end_date date, p_base_currency text) → void`
 
-Organizer only. Replaces all editable fields; returns the new version.
-Errors: `not_found`, `not_organizer`, `version_conflict`, `validation_failed`.
-Requirements: FR-006, principle III.
+Organizer only. Replaces all editable fields; the last write wins (no version, constitution
+v1.1.0 principle III).
+Errors: `not_found`, `not_organizer`, `validation_failed`.
+Requirements: FR-006.
 
 ## Invitations
 
@@ -56,7 +56,8 @@ Requirements: FR-009, FR-019, spec edge cases (invalid link, full trip).
 ### `join_trip(p_token text) → uuid`
 
 Adds the caller as an `active` participant (or reactivates a `left` membership) and returns the
-trip id. Idempotent for active members. Locks the trip row while counting members.
+trip id. Idempotent for active members (no write, no event). Locks the trip row while counting
+members. On an actual join sets `trips.members_changed_at`.
 Errors: `not_authenticated`, `profile_incomplete`, `invalid_invitation`, `removed_from_trip`,
 `trip_full`.
 Requirements: FR-007a, FR-010, FR-011, FR-013a.
@@ -69,28 +70,29 @@ Requirements: FR-008.
 
 ## Membership
 
-### `remove_member(p_trip_id uuid, p_user_id uuid, p_expected_version int) → void`
+### `remove_member(p_trip_id uuid, p_user_id uuid) → void`
 
-Organizer only. Sets the member's status to `removed`.
-Errors: `not_found`, `not_organizer`, `cannot_remove_self`, `version_conflict`.
+Organizer only. Sets the member's status to `removed` and `trips.members_changed_at`.
+Errors: `not_found`, `not_organizer`, `cannot_remove_self`.
 Requirements: FR-013, FR-013a.
 
-### `unblock_member(p_trip_id uuid, p_user_id uuid, p_expected_version int) → void`
+### `unblock_member(p_trip_id uuid, p_user_id uuid) → void`
 
-Organizer only. Changes `removed` to `left`, so the person can rejoin via the link.
-Errors: `not_found`, `not_organizer`, `version_conflict`.
+Organizer only. Changes `removed` to `left`, so the person can rejoin via the link; sets
+`trips.members_changed_at`.
+Errors: `not_found`, `not_organizer`.
 Requirements: FR-013a.
 
 ### `leave_trip(p_trip_id uuid) → void`
 
-Sets the caller's own active membership to `left`.
+Sets the caller's own active membership to `left` and `trips.members_changed_at`.
 Errors: `not_found`, `organizer_cannot_leave`.
 Requirements: FR-013.
 
 ## Profile
 
 Profiles are updated directly: `update users set display_name = …, language = … where id =
-auth.uid()` under RLS and column grants. Check constraints return `validation_failed`-equivalent
+auth.uid()` under RLS and column grants. A trigger trims `display_name`. Check constraints return `validation_failed`-equivalent
 constraint errors, which the client maps to field messages.
 Requirements: FR-020, FR-022.
 
@@ -100,9 +102,7 @@ Requirements: FR-020, FR-022.
 |---|---|
 | Continue as guest | `auth.signInAnonymously({ options: { data: { display_name, language } } })` |
 | Email sign-in | `auth.signInWithOtp({ email, options: { data: { language } } })` → `auth.verifyOtp(...)` |
-| Google sign-in | `auth.signInWithOAuth({ provider: 'google' })` |
-| Guest → account, email | `auth.updateUser({ email })` → `auth.verifyOtp({ type: 'email_change', ... })` |
-| Guest → account, Google | `auth.linkIdentity({ provider: 'google' })` |
+| Guest → account | `auth.updateUser({ email })` → `auth.verifyOtp({ type: 'email_change', ... })` → `auth.refreshSession()` |
 
 Requirements: FR-015, FR-016, FR-017.
 
@@ -110,7 +110,7 @@ Requirements: FR-015, FR-016, FR-017.
 
 | Channel | Table | Filter | Client reaction |
 |---|---|---|---|
-| `trip:<id>` | `trips` | `id=eq.<id>` | Refetch trip |
+| `trip:<id>` | `trips` | `id=eq.<id>` | Refetch trip and members (also fires on `members_changed_at`, so leaves and removals reach every active member) |
 | `trip:<id>` | `trip_members` | `trip_id=eq.<id>` | Refetch members; if own status is no longer `active`, go to "My trips" |
 | `trip:<id>` | `users` | none (RLS limits to co-members) | Refetch members |
 

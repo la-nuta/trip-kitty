@@ -27,6 +27,17 @@
 - Q: How should "My trips" show trips that have already ended? → A: Three groups: current and
   upcoming (nearest first), undated, then past (most recent first).
 
+### Session 2026-10-31
+
+- Q: Which language does a first-time visitor get when the browser lists several languages, for
+  example German first and Russian second? → A: The first language in the browser's list that
+  TripKitty supports (German, Russian → Russian); English if none is supported.
+- Q: Is Google sign-in part of this feature? → A: No. Accounts sign in with an email one-time
+  code only; Google sign-in is deferred to a later feature (`docs/decisions.md` D6).
+- Q: Do trip details and memberships need edit conflict detection (versions)? → A: No. Versions
+  are required only for financial records (constitution v1.1.0, principle III); the organizer's
+  last edit wins.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Create a trip and see it in "My trips" (Priority: P1)
@@ -177,8 +188,8 @@ is open; the form keeps its values and the interface is in English. Reload; it s
 ### User Story 5 - Convert a guest profile into an account (Priority: P3)
 
 A guest who joined a trip without an account decides to keep using TripKitty on their phone and
-laptop. From the profile they convert their guest profile into an account by signing in with
-email or Google. Their name, language, and trips stay the same, and they can now sign in on any
+laptop. From the profile they convert their guest profile into an account by confirming an
+email address with a one-time code. Their name, language, and trips stay the same, and they can now sign in on any
 device.
 
 **Why this priority**: Guest access lowers the barrier to joining (Story 2), but without
@@ -192,11 +203,11 @@ members still see one participant, not two.
 **Acceptance Scenarios**:
 
 1. **Given** a guest who is a member of two trips, **When** they convert to an account with
-   email or Google, **Then** they remain a member of both trips with the same name, language, and
+   an email address, **Then** they remain a member of both trips with the same name, language, and
    roles, and other members see no change in the participant list.
 2. **Given** a converted user, **When** they sign in on another device, **Then** they see their
    trips and their saved interface language.
-3. **Given** a guest, **When** they try to convert using an email or Google account that already
+3. **Given** a guest, **When** they try to convert using an email address that already
    belongs to another TripKitty user, **Then** the conversion is refused with an explanation and
    the guest profile is unchanged.
 
@@ -216,7 +227,7 @@ members still see one participant, not two.
 - A removed guest clears their browser data and opens the invitation link again: they are not
   recognized and can join as a new guest, so the block (FR-013a) cannot hold for unrecognized
   guests; the organizer's remedy is to remove them again and reset the invitation link.
-- A guest tries to convert to an account using an email or Google account that already belongs to
+- A guest tries to convert to an account using an email address that already belongs to
   another TripKitty user: conversion is refused with an explanation; profiles are not merged in
   this feature.
 - A signed-in user opens an invitation link while already signed in: they join directly with
@@ -238,7 +249,8 @@ members still see one participant, not two.
 - The organizer edits trip details while another member has the trip open: the other member sees
   the new values without reloading.
 - The browser reports a regional variant of a language (for example `ru-RU`, `ru-UA`, `en-GB`):
-  any Russian variant maps to Russian, everything else to English.
+  it matches the base language (Russian, English); a browser whose list contains no supported
+  language gets English.
 
 ## Requirements *(mandatory)*
 
@@ -296,9 +308,9 @@ members still see one participant, not two.
   keeping the same identity, display name, language, and all trip memberships and roles; after
   conversion they can sign in on any device. A guest who has not converted is recognized only in
   the browser where they joined.
-- **FR-017**: Account holders MUST be able to sign in with an email one-time link or code, or
-  with a Google account. Signing in with Google and with email for the same email address MUST
-  lead to the same user.
+- **FR-017**: Account holders MUST be able to sign in with an email one-time code (or the
+  one-time link in the same email). Other sign-in methods, including Google, are out of scope
+  for this feature.
 - **FR-018**: Every access rule in this feature MUST be enforced by the server; a non-member MUST
   NOT be able to read or change any trip data, and a non-organizer MUST NOT be able to perform
   organizer-only actions, regardless of the client used.
@@ -309,8 +321,9 @@ members still see one participant, not two.
 
 - **FR-020**: Every user, including guests, MUST have a profile with a display name (required,
   1–50 characters after trimming) and an interface language.
-- **FR-021**: For a user without a saved language, the interface language MUST be Russian if the
-  browser's preferred language is any Russian variant, and English otherwise; this applies to the
+- **FR-021**: For a user without a saved language, the interface language MUST be the first
+  language in the browser's list of preferred languages that TripKitty supports, matching any
+  regional variant (`ru-UA` → Russian); if none is supported, English. This applies to the
   invitation page as well.
 - **FR-022**: Users MUST be able to change their display name and interface language in the
   profile; the language change MUST take effect immediately without losing values entered on the
@@ -376,8 +389,9 @@ members still see one participant, not two.
 - An invitation link carries enough randomness that it cannot be guessed; anyone who has the link
   can join, which is acceptable for groups of friends.
 - Interface languages are limited to Russian and English, and adding another one must need only
-  a new translation file (constitution principle VI).
-- Merging an existing account with a guest profile, and signing in with a password or with
-  providers other than email and Google, are out of scope.
+  a new translation file and its entry in the language list, with no code changes (constitution
+  principle VI).
+- Merging an existing account with a guest profile, and signing in with a password, Google, or
+  any provider other than email, are out of scope (Google is deferred, `docs/decisions.md` D6).
 - Users have a modern mobile or desktop browser with an internet connection; offline use is out
   of scope.

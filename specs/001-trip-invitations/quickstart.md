@@ -9,9 +9,6 @@ implementation adds to `package.json`.
 
 - Node.js **≥ 24.15** (Angular 22 requirement; 24.14 is too old). Check with `node -v`.
 - Docker running (the Supabase CLI starts the local stack in containers).
-- Optional, for Google sign-in only: a Google OAuth client id and secret in `supabase/.env`
-  (`SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID`, `SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET`). Everything
-  else works without it.
 
 ## Setup
 
@@ -72,6 +69,8 @@ people.
    As the organizer, remove Masha. In Masha's window: the trip disappears and she is sent to
    "My trips". She opens the link again: "you were removed". The organizer unblocks her; she can
    join again.
+   Leave the trip as a third member in another window: the organizer's and Masha's lists drop
+   that member within 5 seconds without reloading.
 
 7. **Reset the link** (FR-008)
    Reset the invitation link; open the old link.
@@ -90,5 +89,6 @@ people.
     Covered by `npm run db:test` (creating 20 members by hand is impractical).
 
 11. **Mobile layout** (SC-007)
-    In browser dev tools, set the width to 360 px and walk through scenarios 1–3.
+    In browser dev tools, set the width to 360 px and walk through scenarios 1–3, then open
+    `/profile`, `/trips/<id>/edit`, and the organizer's "Removed participants" section.
     Expected: no horizontal scrolling.

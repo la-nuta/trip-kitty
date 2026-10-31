@@ -21,11 +21,14 @@ Profile of every person, including guests. One row per `auth.users` row, same id
 | `created_at` | timestamptz | default `now()` |
 | `updated_at` | timestamptz | set by trigger |
 
-- Created by a trigger on insert into `auth.users`. `display_name` is filled from the provider's
-  metadata (`full_name` / `name` for Google, `display_name` passed on anonymous sign-in) when
-  present; `language` from metadata passed by the client (browser language).
-- Whether a user is a guest is **not stored**: it is the `is_anonymous` claim of the session and
-  `auth.users.is_anonymous`. Converting a guest flips it in `auth.users`; this row is untouched.
+- Created by a trigger on insert into `auth.users`. `display_name` is filled from the metadata
+  passed by the client (`display_name` on anonymous sign-in) when present; `language` from
+  metadata passed by the client (browser language).
+- `display_name` is stored trimmed: the insert trigger and a `BEFORE UPDATE` trigger apply
+  `btrim`, so leading and trailing spaces never reach the table (spec edge case).
+- Whether a user is a guest is **not stored**: it is `auth.users.is_anonymous`. Converting a guest
+  flips it in `auth.users`; this row is untouched. Functions read the flag from `auth.users`, not
+  from the JWT claim, so a stale token right after conversion does not block `create_trip`.
 - A user with `display_name is null` cannot create or join trips (checked in the functions); the
   app shows a "complete your profile" step first.
 
@@ -40,7 +43,10 @@ Profile of every person, including guests. One row per `auth.users` row, same id
 | `base_currency` | char(3) | `^[A-Z]{3}$`; the client offers ISO 4217 codes (FR-003) |
 | `created_at` | timestamptz | default `now()` |
 | `updated_at` | timestamptz | set by trigger |
-| `version` | integer | starts at 1, incremented on every update (principle III) |
+| `members_changed_at` | timestamptz | set by the membership functions on every join, leave, removal, and unblock; lets Realtime notify all active members (see below) |
+
+No `version` column: constitution v1.1.0 requires versions for financial records only, and only
+the organizer edits a trip, so the last write wins.
 
 The organizer is not a column here; it is the `trip_members` row with role `organizer`.
 
@@ -54,7 +60,6 @@ The organizer is not a column here; it is the `trip_members` row with role `orga
 | `status` | text | `active` \| `left` \| `removed` |
 | `joined_at` | timestamptz | time of the latest join |
 | `updated_at` | timestamptz | set by trigger |
-| `version` | integer | starts at 1, incremented on every update |
 
 - Primary key `(trip_id, user_id)`: at most one membership per user per trip (FR-011).
 - Partial unique index on `(trip_id) WHERE role = 'organizer'`: exactly one organizer per trip
@@ -120,3 +125,12 @@ only in `create_trip` (refused, FR-001a).
   `current_or_upcoming`. Ordering per group as in FR-005.
 - **Interface language** (FR-021, FR-023): profile language if set; otherwise the first browser
   language whose primary subtag is available; otherwise `en`.
+
+## Realtime and membership changes
+
+Realtime `postgres_changes` delivers an event only to subscribers who can select the row
+*after* the change. When a member leaves or is removed, their `trip_members` row becomes
+`left`/`removed` and is hidden from ordinary participants, so they would not hear about it.
+Therefore `join_trip`, `leave_trip`, `remove_member`, and `unblock_member` also set
+`trips.members_changed_at = now()`; every active member can see the trip row and refetches the
+member list on that event (FR-014).

@@ -101,6 +101,31 @@ on every pull request from the first feature. No coverage threshold for now.
 **Consequences.** Resolves the testing questions in `docs/plan.md` §17. A coverage threshold can
 be added later if gaps appear in review.
 
+## D6. Google sign-in deferred; versions only for financial records
+
+**Date:** 2026-10-31
+
+**Context.** `/speckit-analyze` for feature 001 found that "Google and email for the same address
+lead to the same user" (FR-017) cannot be tested automatically without a real OAuth client, and
+that an enabled Google provider with unset credentials can break `supabase start` locally and in
+CI. It also found that the constitution's rule "mutable records carry a version" was broader than
+intended.
+
+**Decision.**
+- Feature 001 supports only email one-time code sign-in (plus guests). Google sign-in moves to a
+  later feature together with its OAuth setup and a manual verification scenario.
+- Versions and stale-write conflicts are required only for financial records (expenses,
+  payments, splits, transfers, exchange rates). Profiles, interface language, trip details,
+  memberships, and invitations are last-write-wins: the participant set is fixed before expenses
+  are allocated, and the language affects display only. Constitution amended to v1.1.0.
+- The trip's base currency keeps the meaning from `docs/plan.md` §9 (balances are shown in it).
+  Whether it may change once expenses exist is decided by the expenses feature.
+
+**Consequences.**
+- No `version` columns or `version_conflict` error in feature 001.
+- Adding Google later needs: provider config, `linkIdentity` for guest conversion, a check that
+  Supabase links identities with the same verified email, and a quickstart scenario.
+
 ## Open items
 
 Not decisions yet; to be resolved during `/speckit-plan` for the relevant feature.

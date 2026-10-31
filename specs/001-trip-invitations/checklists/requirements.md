@@ -35,4 +35,6 @@
   device) and FR-017 (account sign-in methods).
 - Iteration 2: resolved by the user — FR-016: guest converts to an account (new User Story 5);
   FR-017: email one-time link or code plus Google. All items pass.
+- Iteration 3 (2026-10-31, after `/speckit-analyze`): Google sign-in deferred (`docs/decisions.md`
+  D6); FR-017 is email only. FR-021 takes the first supported browser language.
 - Items marked incomplete require spec updates before `/speckit-clarify` or `/speckit-plan`

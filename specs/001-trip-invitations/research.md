@@ -23,20 +23,17 @@ pinning Angular 21 (no reason, nothing depends on it).
 **Decision**: Supabase Auth with three methods:
 - **Guests** — Supabase anonymous sign-in. The guest gets a real `auth.users` row and a JWT with
   `is_anonymous = true`; the session is persisted in the browser, which gives FR-015.
-- **Accounts** — email one-time code/link (`signInWithOtp`) and Google OAuth.
+- **Accounts** — email one-time code/link (`signInWithOtp`). Google OAuth is deferred to a later
+  feature (`docs/decisions.md` D6).
 - **Guest → account conversion (FR-016)** — on the anonymous user: `updateUser({ email })` and
-  then OTP verification for email, or `linkIdentity({ provider: 'google' })` for Google. The user
-  id does not change, so memberships, roles, name, and language stay without any data migration.
+  then OTP verification (`type: 'email_change'`), followed by `refreshSession()` so the JWT's
+  `is_anonymous` claim becomes `false` at once. The user id does not change, so memberships, roles, name, and language stay without any data migration.
 
 **Rationale**: The constitution fixes Supabase Auth. Anonymous sign-ins produce a persistent,
-server-recognized identity that RLS can check, unlike a client-generated id. Supabase links
-identities with the same verified email automatically, which gives "same email via Google and
-email = same user" (FR-017). Converting to an email or Google identity that already belongs to
-another user fails in Supabase, which matches the spec's edge case (refuse, no merge).
+server-recognized identity that RLS can check, unlike a client-generated id. Converting to an
+email that already belongs to another user fails in Supabase, which matches the spec's edge case (refuse, no merge).
 
-**Settings required**: anonymous sign-ins enabled; manual identity linking enabled (for
-`linkIdentity`); Google provider configured with client id/secret from environment variables;
-rate limit on anonymous sign-ins per IP (Supabase default) kept on. CAPTCHA (e.g. Cloudflare
+**Settings required**: anonymous sign-ins enabled; email OTP enabled; rate limit on anonymous sign-ins per IP (Supabase default) kept on. CAPTCHA (e.g. Cloudflare
 Turnstile) on anonymous sign-in is deferred to stage 5 "launch readiness".
 
 **Alternatives considered**: client-generated guest UUID stored in localStorage (not verifiable by
@@ -63,13 +60,15 @@ limit or "create three rows atomically"); Edge Functions (extra runtime, no gain
 **Decision**:
 - `join_trip` locks the trip row (`SELECT … FOR UPDATE`) before counting active members, so two
   concurrent joins for the last place serialize and the limit of 20 is never exceeded.
-- `trips` and `trip_members` carry an integer `version`. `update_trip`, `remove_member`, and
-  `unblock_member` take the expected version and fail with a conflict error if it is stale
-  (principle III).
+- No `version` columns on `trips` or `trip_members`: constitution v1.1.0 requires versions for
+  financial records only. Trip details are edited by the single organizer; the last write wins.
 - `join_trip` is idempotent: an active member gets the trip back without changes.
+- The concurrent "last free place" case is not covered by an automated test (accepted risk,
+  2026-10-31): the row lock is checked in the migration review (tasks T071), and the limit
+  guards against link abuse, not money.
 
 **Rationale**: Row locking is the simplest correct approach at this scale (≤ 20 members, rare
-joins). Versions satisfy the constitution's "no silent overwrite" rule.
+joins).
 
 **Alternatives considered**: counting in a constraint trigger (harder to test and reason about);
 serializable isolation for the whole function (retries needed in the client).
@@ -109,7 +108,9 @@ polling (wastes requests and is slower).
   `public/i18n/languages.json` listing available languages. The app reads the manifest at
   startup, so a new language needs only files, no code (principle VI).
 - Default language: the first entry of `navigator.languages` whose primary subtag is in the
-  manifest; otherwise `en`. For ru/en this gives exactly FR-021 (any `ru-*` → Russian).
+  manifest; otherwise `en` (FR-021: `['de-DE','ru']` → Russian, any `ru-*` → Russian).
+- Language names in the switcher come from `Intl.DisplayNames(code, { type: 'language' })`
+  (each language named in itself), so a new language needs no new keys in other files.
 - After sign-in, the profile language wins (FR-023). A guest's chosen browser language is saved to
   the profile on first sign-in.
 - Formatting through small signal-aware pipes over `Intl.DateTimeFormat` and `Intl.NumberFormat`
@@ -133,7 +134,11 @@ has better signal support).
    every key used in templates and code (`t('…')`, `transloco` pipe) exists in `en.json`.
 2. **No bare text in templates** — a test parses every component template with
    `@angular/compiler`'s `parseTemplate` and fails on any text node that is not whitespace and is
-   not inside an interpolation. A small allowlist covers non-language symbols (e.g. "·", "—").
+   not inside an interpolation, and on any static `placeholder`, `title`, `aria-label`, or `alt`
+   attribute. A small allowlist covers non-language symbols (e.g. "·", "—").
+3. **No UI strings in code** — user-visible text set from TypeScript (snackbars, `confirm`
+   texts, `document.title`) goes only through `translate(...)`; a test scans `src/**/*.ts`
+   (except specs) for string literals passed to those APIs.
 
 **Rationale**: Both checks run in Vitest with no extra tooling and give the constitution's
 merge gate "no untranslated UI strings" a concrete test.
@@ -150,8 +155,7 @@ attributes, not Transloco); manual review only (not verifiable).
   participant, and organizer roles (principle VII, SC-004).
 - **Playwright** smoke suite against the app on a local Supabase: create a trip, join as a guest,
   switch language with a half-filled form, outsider denied. Email sign-in in e2e reads the code
-  from the local mail catcher that ships with the Supabase CLI. Google sign-in is not tested
-  end-to-end (external provider); its server side is covered by Supabase.
+  from the local mail catcher that ships with the Supabase CLI.
 - **fast-check** is added with the first financial logic (expenses feature); this feature has no
   money calculations.
 - **GitHub Actions** on every pull request: lint, `tsc` strict type check, unit tests, `supabase

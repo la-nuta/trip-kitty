@@ -10,7 +10,7 @@ scaffolds the project).
 ## Summary
 
 A signed-in account holder creates a trip (name, optional dates, base currency) and invites
-people through one resettable link; invitees join with an account (email code or Google) or as a
+people through one resettable link; invitees join with an account (email one-time code) or as a
 guest, and guests can later convert to an account without losing anything. Only active members
 see a trip; the organizer can remove, block, and unblock participants; a trip holds at most 20
 active members. Every user has a display name and a Russian/English interface language detected
@@ -45,7 +45,8 @@ custom server
 
 **Performance Goals**: Changes visible to other members within 5 s (SC-003); joining as a guest
 in under 1 minute of user time (SC-002); "My trips" and trip screens interactive within 2 s on a
-mid-range phone over 4G
+mid-range phone over 4G (a design target, not measured in this feature; a Lighthouse budget can be
+added with deployment)
 
 **Constraints**: All permissions enforced on the server (principle II); no UI strings outside
 translation files (principle VI); usable at 360 px width (SC-007); no money logic in this feature
@@ -62,7 +63,7 @@ translation files (principle VI); usable at 360 px width (SC-007); no money logi
 |---|---|---|---|
 | I. Monetary Precision | Only the base currency code is stored; no amounts | `base_currency` is an ISO 4217 code; nothing to compute | ✅ Pass (n/a) |
 | II. Server Is the Sole Authority | Yes, central to this feature | RLS on every table; all writes via `SECURITY DEFINER` functions checking `auth.uid()`; guests have a server-side identity (Supabase anonymous users); no service keys in the client; `anon` role limited to the invitation preview | ✅ Pass |
-| III. Integrity of Collaborative Changes | Partly (no financial changes) | Each function is one transaction; `version` on `trips` and `trip_members` with `version_conflict`; `join_trip` idempotent and row-locked; Realtime delivery. `activity_log` not written — principle III requires it for **financial** changes only, and the clarification confirms none in this feature | ✅ Pass |
+| III. Integrity of Collaborative Changes | Partly (no financial changes) | Each function is one transaction; `join_trip` idempotent and row-locked; Realtime delivery, including membership changes via `trips.members_changed_at`. No `version` columns: constitution v1.1.0 requires versions for financial records only; trip details and memberships are last-write-wins (single organizer). `activity_log` not written — required for **financial** changes only, and the clarification confirms none in this feature | ✅ Pass |
 | IV. Separate Stages, Independent Statuses | Membership status only | `trip_members.status` is its own field with explicit transitions; no merged statuses | ✅ Pass |
 | V. AI Recognition Without Guesswork | No | — | ✅ Pass (n/a) |
 | VI. Localization Without Hardcoding | Yes | Transloco with files + language manifest (no code for a new language); codes in the database, error codes from functions; `Intl` for formatting and currency names; language in `users`, including guests; automated checks for key parity and bare template text (research R8) | ✅ Pass |
@@ -119,7 +120,7 @@ public/i18n/
 └── ru.json
 
 supabase/
-├── config.toml                   # anonymous sign-ins, manual linking, Google provider via env
+├── config.toml                   # anonymous sign-ins, email OTP
 ├── migrations/                   # tables, RLS, helper and RPC functions, triggers
 └── tests/                        # pgTAP: rls_*.sql, functions_*.sql
 
@@ -143,3 +144,6 @@ No constitution violations to justify.
   since Story 3 protects Story 2) → P3 profile/language and guest conversion.
 - Database work per story is test-first: pgTAP test, then migration (principle VII applies to RLS).
 - Before scaffolding, upgrade Node to ≥ 24.15 (research R1).
+- Amended after `/speckit-analyze` (2026-10-31): no versions on `trips`/`trip_members`, no
+  Google sign-in, membership changes reach all members through `trips.members_changed_at`,
+  language detection takes the first supported browser language.
