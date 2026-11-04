@@ -83,7 +83,7 @@ people.
 
 9. **Guest → account** (Story 5)
    As Masha, convert to an account by email. Sign in with that email in another browser.
-   Expected: same trips, name, and language; the organizer still sees one Masha.
+   Expected: same trips, name, language, and theme; the organizer still sees one Masha.
 
 10. **Trip full** (FR-007a)
     Covered by `npm run db:test` (creating 20 members by hand is impractical).
@@ -92,3 +92,12 @@ people.
     In browser dev tools, set the width to 360 px and walk through scenarios 1–3, then open
     `/profile`, `/trips/<id>/edit`, and the organizer's "Removed participants" section.
     Expected: no horizontal scrolling.
+
+12. **Themes** (FR-026–FR-031, SC-009)
+    Set the device to a dark color scheme and open TripKitty in a new private window.
+    Expected: the light theme. On `/profile`, start changing the name without saving and switch
+    to the dark theme.
+    Expected: all colors change at once, the page does not reload, and the typed name stays.
+    Reload: the dark theme appears with no flash of the light one. Sign in on another browser:
+    the dark theme is applied. Check "My trips" and an invitation page in both themes against
+    `contracts/theme-tokens.md`.

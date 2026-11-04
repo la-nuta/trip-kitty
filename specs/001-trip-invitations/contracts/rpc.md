@@ -91,10 +91,10 @@ Requirements: FR-013.
 
 ## Profile
 
-Profiles are updated directly: `update users set display_name = …, language = … where id =
-auth.uid()` under RLS and column grants. A trigger trims `display_name`. Check constraints return `validation_failed`-equivalent
+Profiles are updated directly: `update users set display_name = …, language = …, theme = … where
+id = auth.uid()` under RLS and column grants. A trigger trims `display_name`. Check constraints return `validation_failed`-equivalent
 constraint errors, which the client maps to field messages.
-Requirements: FR-020, FR-022.
+Requirements: FR-020, FR-022, FR-028, FR-029.
 
 ## Auth (Supabase Auth, not custom functions)
 

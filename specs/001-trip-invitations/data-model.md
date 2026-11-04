@@ -18,6 +18,7 @@ Profile of every person, including guests. One row per `auth.users` row, same id
 | `id` | uuid, PK | = `auth.users.id`, `ON DELETE CASCADE` |
 | `display_name` | text, null | 1–50 characters after trim when set; `null` until the profile is completed |
 | `language` | text, null | format `^[a-z]{2}$`; `null` until set; no enum, so new languages need no migration |
+| `theme` | text, null | format `^[a-z][a-z0-9-]{0,29}$`; `null` until the user picks a theme; no enum, so new themes need no migration |
 | `created_at` | timestamptz | default `now()` |
 | `updated_at` | timestamptz | set by trigger |
 
@@ -109,7 +110,7 @@ Helper functions (`SECURITY DEFINER`, `STABLE`) avoid recursive policies:
 
 | Table | SELECT | INSERT / UPDATE / DELETE |
 |---|---|---|
-| `users` | own row; users who share a trip with the viewer (active co-members, plus removed members for the organizer) | UPDATE own `display_name`, `language` only (column grants); no insert/delete |
+| `users` | own row; users who share a trip with the viewer (active co-members, plus removed members for the organizer) | UPDATE own `display_name`, `language`, `theme` only (column grants); no insert/delete |
 | `trips` | active members | none — via functions only |
 | `trip_members` | own rows (any status); rows with status `active` in trips where the viewer is active; all rows for the organizer | none — via functions only |
 | `invitations` | organizer of the trip | none — via functions only |
@@ -125,6 +126,10 @@ only in `create_trip` (refused, FR-001a).
   `current_or_upcoming`. Ordering per group as in FR-005.
 - **Interface language** (FR-021, FR-023): profile language if set; otherwise the first browser
   language whose primary subtag is available; otherwise `en`.
+- **Theme** (FR-027, FR-029, FR-031): profile theme if it is available; otherwise `light`. Before
+  the profile loads, the copy kept in this browser (`tripkitty.theme` in `localStorage`) is used
+  if it is available; that copy is only a cache and is cleared on sign-out. Unlike the language,
+  a default theme is never written to the profile: `null` means "not chosen".
 
 ## Realtime and membership changes
 

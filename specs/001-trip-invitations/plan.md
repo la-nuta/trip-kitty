@@ -28,7 +28,8 @@ Supabase, Vitest, pgTAP, Playwright, and GitHub Actions.
 CLI), Node.js ≥ 24.15
 
 **Primary Dependencies**: Angular 22.2 (`@angular/core`, `@angular/router`, `@angular/forms`,
-`@angular/build`), `@supabase/supabase-js` 2.x, `@jsverse/transloco` 8.x, Supabase CLI 2.x (dev)
+`@angular/build`), `@supabase/supabase-js` 2.x, `@jsverse/transloco` 8.x, `@fontsource/unbounded` and `@fontsource/rubik` 5.x, Supabase CLI 2.x
+(dev)
 
 **Storage**: Supabase PostgreSQL; tables `users`, `trips`, `trip_members`, `invitations` (see
 [data-model.md](./data-model.md)); no file storage in this feature
@@ -49,7 +50,8 @@ mid-range phone over 4G (a design target, not measured in this feature; a Lighth
 added with deployment)
 
 **Constraints**: All permissions enforced on the server (principle II); no UI strings outside
-translation files (principle VI); usable at 360 px width (SC-007); no money logic in this feature
+translation files (principle VI); usable at 360 px width (SC-007); no money logic in this feature; colors and fonts only through theme tokens, with text contrast of
+at least 4.5:1 in both themes ([contracts/theme-tokens.md](./contracts/theme-tokens.md))
 
 **Scale/Scope**: ≤ 20 active members per trip, typically 3–7; 10 routes
 ([contracts/routes.md](./contracts/routes.md)); 8 database functions
@@ -68,7 +70,7 @@ translation files (principle VI); usable at 360 px width (SC-007); no money logi
 | V. AI Recognition Without Guesswork | No | — | ✅ Pass (n/a) |
 | VI. Localization Without Hardcoding | Yes | Transloco with files + language manifest (no code for a new language); codes in the database, error codes from functions; `Intl` for formatting and currency names; language in `users`, including guests; automated checks for key parity and bare template text (research R8) | ✅ Pass |
 | VII. Tested Financial Logic | RLS tests: yes; financial logic: none yet | pgTAP for outsider, guest, participant, organizer; pure functions (trip grouping, language detection) unit-tested; `fast-check` arrives with expenses | ✅ Pass |
-| Stack: new dependencies | — | All in the constitution's stack. Testing tools (Vitest, pgTAP, Playwright) and Cloudflare hosting are justified in `docs/decisions.md` D4–D5 and research R9–R10 | ✅ Pass |
+| Stack: new dependencies | — | All in the constitution's stack. Testing tools (Vitest, pgTAP, Playwright) and Cloudflare hosting are justified in `docs/decisions.md` D4–D5 and research R9–R10 Self-hosted fonts are presentation assets (research R11). | ✅ Pass |
 
 **Post-design re-check (after Phase 1)**: still passes. The data model keeps the organizer as a
 membership role (no duplicate source of truth), and the RPC contract returns codes only, never
@@ -81,12 +83,13 @@ translated text.
 ```text
 specs/001-trip-invitations/
 ├── plan.md              # This file
-├── research.md          # Phase 0: decisions R1–R10
+├── research.md          # Phase 0: decisions R1–R11
 ├── data-model.md        # Phase 1: tables, RLS, state transitions
 ├── quickstart.md        # Phase 1: setup and validation scenarios
 ├── contracts/
 │   ├── rpc.md           # Database functions, error codes, auth calls, realtime
-│   └── routes.md        # Routes and screens
+│   ├── routes.md        # Routes and screens
+│   └── theme-tokens.md  # Colors, fonts, and contrast of the themes
 ├── checklists/
 │   └── requirements.md  # Spec quality checklist
 └── tasks.md             # Phase 2 (/speckit-tasks — not created by /speckit-plan)
@@ -99,6 +102,7 @@ package.json, angular.json, tsconfig*.json, eslint.config.js, playwright.config.
 
 src/
 ├── main.ts, index.html, styles.scss
+├── styles/themes.scss            # color and font tokens for every theme
 ├── environments/                 # local Supabase URL + anon key
 └── app/
     ├── app.config.ts, app.routes.ts
@@ -106,6 +110,7 @@ src/
     │   ├── supabase/             # client provider, generated database.types.ts
     │   ├── auth/                 # session signal, guards, sign-in/guest/convert flows
     │   ├── i18n/                 # Transloco setup, language detection, Intl pipes, error-code mapping
+    │   ├── theme/                # theme list, theme resolution, ThemeService
     │   └── realtime/             # trip channel subscription helper
     ├── features/
     │   ├── auth/                 # /sign-in, /auth/callback

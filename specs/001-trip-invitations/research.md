@@ -170,3 +170,21 @@ static assets), no PWA (see `docs/decisions.md` D4).
 
 **Rationale**: The feature is verified locally and in CI; choosing the deploy setup now would add
 work without validating anything in this slice.
+
+## R11. Themes and fonts
+
+**Decision**: Colors are CSS custom properties named by role, in `src/styles/themes.scss`
+([contracts/theme-tokens.md](./contracts/theme-tokens.md)). The active theme is the `data-theme`
+attribute on `<html>`. A short inline script in `index.html` applies the copy from
+`localStorage` before the first paint; `ThemeService` then reconciles it with the profile. Fonts
+come from `@fontsource` packages and ship with the app.
+
+**Rationale**: A role-based set of variables keeps a new theme to one block of values, and switching
+an attribute re-colors the page without a reload or re-render, so forms keep their values. Only
+this copy can prevent a flash, because the profile arrives after the first paint. Self-hosting
+avoids a request to a third party on every visit.
+
+**Alternatives considered**: `prefers-color-scheme` as the default (rejected by the user: first
+visit is always light); keeping the theme only in the browser (it would not follow the user across
+devices); a fixed enum for `users.theme` (a new theme would need a migration); Google Fonts
+(third-party request and no real benefit for this app).

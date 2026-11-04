@@ -9,7 +9,8 @@ description: "Task list for feature 001: trip creation and participant invitatio
 
 **Prerequisites**: [plan.md](./plan.md), [spec.md](./spec.md), [research.md](./research.md),
 [data-model.md](./data-model.md), [contracts/rpc.md](./contracts/rpc.md),
-[contracts/routes.md](./contracts/routes.md), [quickstart.md](./quickstart.md)
+[contracts/routes.md](./contracts/routes.md), [contracts/theme-tokens.md](./contracts/theme-tokens.md),
+[quickstart.md](./quickstart.md)
 
 **Tests**: Included. Constitution principle VII requires database-level RLS tests for the
 outsider, guest, participant, and organizer roles, written before the code; SC-004 and SC-005
@@ -38,6 +39,8 @@ its own.
 - **Components** are standalone, use signals and `ChangeDetectionStrategy.OnPush`, and are
   laid out mobile-first (usable at 360 px).
 - After each migration task, run `npm run db:reset && npm run db:types`.
+- **Styling**: components use only the tokens from `contracts/theme-tokens.md`, never raw colors
+  or font names. Every task that adds UI follows this; T076 enforces it.
 - **Forms (SC-006)**: every form component gets a spec that fills all its fields, switches
   `LanguageService` to the other language, and asserts that the values and the current step
   remain. This applies to T025, T026, T037, T047, T061, and T067.
@@ -74,8 +77,8 @@ its own.
 ### Database foundation (test first)
 
 - [ ] T011 Create pgTAP helpers in `supabase/tests/000_helpers.sql` (committed, not rolled back, so later test files can use them): schema `tests`; `tests.create_user(email text, is_anonymous bool default false, display_name text default 'Test') returns uuid` inserting into `auth.users` (the profile trigger then creates `public.users`); `tests.authenticate_as(user_id uuid)` setting `role authenticated` and `request.jwt.claims` with `sub` and `is_anonymous` from `auth.users`; `tests.clear_authentication()` setting `role anon` and empty claims
-- [ ] T012 Write failing pgTAP tests in `supabase/tests/010_users_test.sql`: inserting into `auth.users` creates a `public.users` row with the same id; `display_name` is taken from `raw_user_meta_data->>'display_name'` (trimmed), else null; `language` from `raw_user_meta_data->>'language'` when it matches `^[a-z]{2}$`, else null; a user can select and update only their own `display_name` and `language`; a user cannot update `id` or `created_at`; updating `display_name` to `'  Anna  '` stores `'Anna'`; `display_name` of `'   '` or 51 characters is rejected; `language` `'eng'` is rejected; the `anon` role cannot select from `users`
-- [ ] T013 Create migration `users` in `supabase/migrations/<ts>_users.sql`: table `public.users` (`id uuid primary key references auth.users(id) on delete cascade`, `display_name text null check (display_name is null or char_length(btrim(display_name)) between 1 and 50)`, `language text null check (language is null or language ~ '^[a-z]{2}$')`, `created_at timestamptz not null default now()`, `updated_at timestamptz not null default now()`); generic trigger function `public.set_updated_at()`; trigger function `public.handle_new_auth_user()` on `auth.users` insert per T012 (stores `btrim(display_name)`); `BEFORE UPDATE` trigger trimming `display_name`; RLS enabled; policy select own row (the co-member policy is added in US1); `grant update (display_name, language) on public.users to authenticated` with an update policy `id = auth.uid()`; revoke all from `anon`. Make T012 pass
+- [ ] T012 Write failing pgTAP tests in `supabase/tests/010_users_test.sql`: inserting into `auth.users` creates a `public.users` row with the same id; `display_name` is taken from `raw_user_meta_data->>'display_name'` (trimmed), else null; `language` from `raw_user_meta_data->>'language'` when it matches `^[a-z]{2}$`, else null; a user can select and update only their own `display_name`, `language`, and `theme`; `theme` is null for a new user, even when metadata contains one; `theme` `'dark'` and `'high-contrast'` are accepted, `'Dark Mode'` is rejected; a user cannot update `id` or `created_at`; updating `display_name` to `'  Anna  '` stores `'Anna'`; `display_name` of `'   '` or 51 characters is rejected; `language` `'eng'` is rejected; the `anon` role cannot select from `users`
+- [ ] T013 Create migration `users` in `supabase/migrations/<ts>_users.sql`: table `public.users` (`id uuid primary key references auth.users(id) on delete cascade`, `display_name text null check (display_name is null or char_length(btrim(display_name)) between 1 and 50)`, `language text null check (language is null or language ~ '^[a-z]{2}$')`, `theme text null check (theme is null or theme ~ '^[a-z][a-z0-9-]{0,29}$')`, `created_at timestamptz not null default now()`, `updated_at timestamptz not null default now()`); generic trigger function `public.set_updated_at()`; trigger function `public.handle_new_auth_user()` on `auth.users` insert per T012 (stores `btrim(display_name)`); `BEFORE UPDATE` trigger trimming `display_name`; RLS enabled; policy select own row (the co-member policy is added in US1); `grant update (display_name, language, theme) on public.users to authenticated` with an update policy `id = auth.uid()`; revoke all from `anon`. Make T012 pass
 
 ### Supabase client and auth
 
@@ -92,9 +95,16 @@ its own.
 - [ ] T021 [P] Write spec, then implement `src/app/core/i18n/error-code.ts`: `toErrorKey(error: unknown): string` mapping a PostgREST error whose `message` is one of the codes in `contracts/rpc.md` to `errors.<code>`, constraint violations to `errors.validation_failed`, and anything else to `errors.unknown`; add all `errors.*` keys to both language files
 - [ ] T022 [P] Create translation checks in `src/app/core/i18n/translations.spec.ts` (research R8): (a) `en.json` and every other file in `languages.json` have identical key sets; (b) every key used in `src/**/*.html` and `src/**/*.ts` via `transloco` pipe/directive or `t('…')`/`translate('…')` exists in `en.json`; (c) every component template parsed with `parseTemplate` from `@angular/compiler` has no non-whitespace text node outside interpolations and no static `placeholder`, `title`, `aria-label`, or `alt` attribute, except an allowlist `['·','—','–','/','|','×']`; (d) no string literal in `src/**/*.ts` (except specs) is passed to user-visible APIs (`confirm`, `alert`, `document.title`, the app's notification service) — they take `translate(...)` results only
 
+### Themes
+
+- [ ] T075 Install `@fontsource/unbounded` and `@fontsource/rubik`; create `src/styles/themes.scss` with every color and font token from `contracts/theme-tokens.md`, the light values on `:root` and the dark values on `[data-theme='dark']`; import it and the Latin and Cyrillic font files from `src/styles.scss`
+- [ ] T076 Write `src/styles/themes.spec.ts`, which parses `themes.scss`: (a) every theme defines every token; (b) every text and background pair in `contracts/theme-tokens.md` reaches 4.5:1 in every theme; (c) no `.scss`, `.html`, or `.ts` file under `src/` other than `themes.scss` and specs contains a hex, `rgb()`, or `hsl()` color or a `font-family` other than `var(--font-*)` (FR-030, SC-008)
+- [ ] T077 [P] Write `src/app/core/theme/resolve-theme.spec.ts`, then implement `src/app/core/theme/themes.ts` (`THEMES = ['light', 'dark']`, `DEFAULT_THEME = 'light'`) and pure `resolve-theme.ts`: `resolveTheme(profileTheme, cachedTheme, available)` returns the profile theme if available; with no profile theme, the cached theme if available; else `light`. Cases: profile `dark` with cache `light`→`dark`; profile null with cache `dark`→`dark`; both null→`light`; unknown profile theme→`light` (FR-027, FR-029)
+- [ ] T078 Write `src/app/core/theme/theme.service.spec.ts` first (cases: `setTheme` sets `data-theme` on `<html>`, writes the local copy, and updates the profile when signed in, with no router navigation; a loaded profile theme replaces the cached one; a null profile theme is not overwritten; sign-out clears the local copy and returns to light; a throwing `localStorage` does not break anything), then create `src/app/core/theme/theme.service.ts` with signal `theme` and method `setTheme(code)`, and add to `src/index.html` an inline script that, inside `try/catch`, applies a well-formed `tripkitty.theme` value from `localStorage` to `<html>` before first paint; never read `prefers-color-scheme` (FR-027–FR-029, FR-031)
+
 ### App shell and shared screens
 
-- [ ] T023 Create `src/app/app.routes.ts` with all routes from `contracts/routes.md` (lazy-loaded feature components, guards from T016) and `src/app/app.ts` shell: header with app name, language switcher (calls `LanguageService.setLanguage`; option labels from `Intl.DisplayNames(code, { type: 'language' })`, each language named in itself), profile link when signed in; `<router-outlet>`; global styles in `src/styles.scss` (mobile-first base, CSS custom properties for colors, spacing; no horizontal overflow at 360 px)
+- [ ] T023 Create `src/app/app.routes.ts` with all routes from `contracts/routes.md` (lazy-loaded feature components, guards from T016) and `src/app/app.ts` shell: header with app name, language switcher (calls `LanguageService.setLanguage`; option labels from `Intl.DisplayNames(code, { type: 'language' })`, each language named in itself), profile link when signed in; `<router-outlet>`; global styles in `src/styles.scss` (mobile-first base, theme tokens from T075, CSS custom properties for spacing; no horizontal overflow at 360 px)
 - [ ] T024 [P] Create shared components in `src/app/shared/`: `form-field/` (label, control slot, error message by translation key), `empty-state/`, `page-not-found/` (also used for "trip not found or no access", FR-019)
 - [ ] T025 Create `src/app/features/auth/sign-in.page.ts` (+ `.html`, `.scss`, form spec): email step → code step (`verifyEmailCode`); on success navigate to `returnUrl` or `/trips`; errors via `toErrorKey`; and `src/app/features/auth/auth-callback.page.ts` completing sign-in from the one-time link in the email and redirecting to the saved `returnUrl` (FR-017)
 - [ ] T026 Create `src/app/features/profile/profile-setup.page.ts` (+ `.html`, form spec): display name field (required, 1–50 after trim) and language select; saves to `public.users`; continues to `returnUrl` (FR-020)
@@ -125,7 +135,7 @@ its own.
 - [ ] T035 [US1] Create `src/app/features/trips/trips.service.ts`: `listMyTrips()` (trips where the caller is an active member, with the count of `status = 'active'` members — the organizer can also see removed rows, so the filter is required — and own role), `getTrip(id)` (trip + active members with `display_name` and role; returns `null` for not found / no access), `createTrip(input)` and `updateTrip(id, input)` via RPC; errors mapped with `toErrorKey`
 - [ ] T036 [P] [US1] Create `src/app/shared/currency-picker/currency-picker.component.ts` (+ `.html`, spec): options from `Intl.supportedValuesOf('currency')`, labels `CODE — name` from `Intl.DisplayNames(language, { type: 'currency' })`, searchable by code and localized name, implements `ControlValueAccessor` (FR-003)
 - [ ] T037 [US1] Create `src/app/features/trips/trip-form/trip-form.component.ts` (+ `.html`, spec including the SC-006 form check): reactive form shared by create and edit — name (required, 1–100 after trim), start date, end date (≥ start date), base currency (required); field-level errors via translation keys; server `validation_failed` with `detail` mapped to the matching field; entered values kept on error (Story 1 scenario 3)
-- [ ] T038 [US1] Create `src/app/features/trips/my-trips.page.ts` (+ `.html`): grouped list from `groupTrips(trips, today)`, where `today` is the device's local date as `YYYY-MM-DD` (built from `new Date()` local fields, not `toISOString()`), with name, dates (`intlDate`), currency, participant count (`intlNumber`), own role; empty state with "Create trip"; for guests the create action shows a message that creating trips needs an account (conversion UI arrives in US5)
+- [ ] T038 [US1] Create `src/app/features/trips/my-trips.page.ts` (+ `.html`): grouped list from `groupTrips(trips, today)`, where `today` is the device's local date as `YYYY-MM-DD` (built from `new Date()` local fields, not `toISOString()`), with name, dates (`intlDate`), currency, participant count (`intlNumber`), own role; empty state with "Create trip"; for guests the create action shows a message that creating trips needs an account (conversion UI arrives in US5); card color follows the group, per `contracts/theme-tokens.md`
 - [ ] T039 [US1] Create `src/app/features/trips/trip-create.page.ts` and `trip-edit.page.ts` using `TripFormComponent`; create → navigate to `/trips/:id`; edit loads the trip and, if the viewer is not its organizer or `getTrip` returns `null`, renders `page-not-found` ("trip not found or no access") instead of the form
 - [ ] T040 [US1] Create `src/app/features/trips/trip-detail.page.ts` (+ `.html`): trip details and participant list (name, role, "you" marker on own entry); organizer sees "Edit"; renders `page-not-found` with the "trip not found or no access" text when `getTrip` returns `null`
 - [ ] T041 [US1] Add all `trips.*`, `validation.*` keys used by T036–T040 to `public/i18n/en.json` and `public/i18n/ru.json`; run `npm test` so T022 checks pass
@@ -150,7 +160,7 @@ its own.
 
 - [ ] T045 [US2] Create migration `invitations_join` in `supabase/migrations/<ts>_invitations_join.sql`: `public.get_invitation_preview(p_token text)` (grant to `anon, authenticated`), `public.join_trip(p_token text) returns uuid` (locks the trip row with `select … for update` before counting active members; limit 20; sets `trips.members_changed_at` on an actual join), `public.reset_invitation(p_trip_id uuid) returns text` (grant to `authenticated`) per `contracts/rpc.md`. Make T043 and T044 pass
 - [ ] T046 [US2] Create `src/app/features/invitations/invitations.service.ts`: `preview(token)`, `join(token)`, `getLink(tripId)` (organizer reads `invitations.token`, builds `${location.origin}/join/<token>`), `reset(tripId)`
-- [ ] T047 [US2] Create `src/app/features/invitations/join.page.ts` (+ `.html`, form spec for the guest name field) for `/join/:token` (no guard): loads the preview; states per `contracts/routes.md` — valid, including `viewer_status = 'left'` (trip name, dates, organizer; "Sign in" → `/sign-in?returnUrl=/join/<token>`; "Continue as guest" with display name field 1–50), invalid (FR-009 edge case text), full (`trip_full`), removed (`removed_from_trip`), already a member (navigate to `/trips/:id`); a signed-in user with a name sees "Join trip" confirmation; a signed-in user without a name (e.g. right after email sign-in) is sent to `/profile/setup?returnUrl=/join/<token>`; guest path calls `signInAsGuest(name)` then `join(token)` then navigates to the trip
+- [ ] T047 [US2] Create `src/app/features/invitations/join.page.ts` (+ `.html`, form spec for the guest name field) for `/join/:token` (no guard): loads the preview; states per `contracts/routes.md` — valid, including `viewer_status = 'left'` (trip name, dates, organizer; "Sign in" → `/sign-in?returnUrl=/join/<token>`; "Continue as guest" with display name field 1–50), invalid (FR-009 edge case text), full (`trip_full`), removed (`removed_from_trip`), already a member (navigate to `/trips/:id`); a signed-in user with a name sees "Join trip" confirmation; a signed-in user without a name (e.g. right after email sign-in) is sent to `/profile/setup?returnUrl=/join/<token>`; guest path calls `signInAsGuest(name)` then `join(token)` then navigates to the trip; the valid state draws the trip as a ticket, per `contracts/theme-tokens.md`
 - [ ] T048 [US2] Add the invitation block to `src/app/features/trips/trip-detail.page.html`: organizer-only "Copy invitation link" (Clipboard API with a visible "copied" confirmation) and "Reset link" with a confirmation dialog (FR-008)
 - [ ] T049 [US2] Create `src/app/core/realtime/trip-channel.ts`: `watchTrip(tripId, onChange)` subscribing to `postgres_changes` on `trips` (`id=eq.<id>`; this event also carries `members_changed_at`, so leaves and removals reach every active member — data-model.md "Realtime and membership changes"), `trip_members` (`trip_id=eq.<id>`), and `users`, debouncing refetch by 300 ms, returning an unsubscribe function; use it in `trip-detail.page.ts` to refetch the trip and members (FR-014); enable Realtime for the three tables in a migration `realtime` (`alter publication supabase_realtime add table …`)
 - [ ] T050 [US2] Add all `invitations.*` keys used by T047–T048 to `public/i18n/en.json` and `public/i18n/ru.json`
@@ -185,7 +195,7 @@ its own.
 
 ## Phase 6: User Story 4 — Profile with name and interface language (Priority: P3)
 
-**Goal**: Users change their name and language at any time; the language switches instantly, persists, and follows the user across devices.
+**Goal**: Users change their name, language, and theme at any time; language and theme switch instantly, persist, and follow the user across devices.
 
 **Independent Test**: With a Russian browser, open the invitation page (Russian), join as guest, switch to English with a half-filled form; values stay; after reload the language stays English.
 
@@ -194,13 +204,15 @@ its own.
 - [ ] T059 [P] [US4] Extend `src/app/core/i18n/language.service.spec.ts` (from T019) with cases that fail until T062: on session restore (page reload) the profile language is applied; when the profile loads after the first render, the active language changes once to the profile language and never flickers back to the browser language
 - [ ] T060 [P] [US4] Write e2e smoke `e2e/language-switch.spec.ts`: with `locale: 'ru-RU'`, a signed-in user opens `/trips/new`, types a name and picks dates, switches to English in the header; the labels are English and the typed values remain; dates in the form summary are formatted in English; after reload the interface stays English (SC-006, FR-022, FR-023)
 
+- [ ] T079 [P] [US4] Write e2e smoke `e2e/theme-switch.spec.ts`: with `colorScheme: 'dark'`, a first-time visitor gets `data-theme` absent or `light`; a signed-in user types a new name on `/profile` without saving and switches to dark; the page does not reload (a marker set on `window` survives) and the typed value remains; after reload the theme is dark; signing in as the same user in a new browser context gives dark (FR-027–FR-029, SC-009)
+
 ### Implementation for User Story 4
 
-- [ ] T061 [US4] Create `src/app/features/profile/profile.page.ts` (+ `.html`, form spec) for `/profile`: display name (1–50 after trim) with save, language select bound to `LanguageService` (labels via `Intl.DisplayNames`, as in T023); shows the user's kind (guest / account) — the conversion block is added in US5 (FR-020, FR-022)
+- [ ] T061 [US4] Create `src/app/features/profile/profile.page.ts` (+ `.html`, form spec) for `/profile`: display name (1–50 after trim) with save, language select bound to `LanguageService` (labels via `Intl.DisplayNames`, as in T023), theme switch bound to `ThemeService` (labels from translation keys, applied on click, no save button needed); shows the user's kind (guest / account) — the conversion block is added in US5 (FR-020, FR-022, FR-028)
 - [ ] T062 [US4] Make `LanguageService` (from T019) pass T059: apply the profile language on every sign-in and session restore; keep the active language when the profile is loaded later than the first render (no flicker back to the browser language)
 - [ ] T063 [US4] Add all `profile.*` keys used by T061 to `public/i18n/en.json` and `public/i18n/ru.json`
 
-**Checkpoint**: Language and name are per-user, persisted, and switch without losing input.
+**Checkpoint**: Language, theme, and name are per-user, persisted, and switch without losing input.
 
 ---
 
@@ -229,7 +241,7 @@ its own.
 ## Phase 8: Polish & Cross-Cutting Concerns
 
 - [ ] T070 [P] Run the 360 px Playwright project over all e2e specs and fix any horizontal overflow; also check by hand at 360 px the screens no e2e spec visits: `/profile`, `/trips/:id/edit`, and the organizer's "Removed participants" section (SC-007)
-- [ ] T071 [P] Review all migrations: `join_trip` locks the trip row before counting members (the concurrent last-place case has no automated test, research R4); every membership function sets `trips.members_changed_at`; every function has `SET search_path = ''`, grants match `contracts/rpc.md`, no table grants `insert/update/delete` to client roles beyond `users (display_name, language)`; record findings in the PR description
+- [ ] T071 [P] Review all migrations: `join_trip` locks the trip row before counting members (the concurrent last-place case has no automated test, research R4); every membership function sets `trips.members_changed_at`; every function has `SET search_path = ''`, grants match `contracts/rpc.md`, no table grants `insert/update/delete` to client roles beyond `users (display_name, language, theme)`; record findings in the PR description
 - [ ] T072 [P] Update `README.md`: prerequisites (Node ≥ 24.15, Docker), setup and test commands from `quickstart.md`, link to `specs/001-trip-invitations/`
 - [ ] T073 Run every manual scenario in `specs/001-trip-invitations/quickstart.md` and note the result of each in the PR description
 - [ ] T074 Run the full gate locally — `npm run lint && npm run typecheck && npm test -- --watch=false && npm run db:test && npm run e2e` — and confirm CI is green on the pull request
@@ -257,7 +269,7 @@ its own.
 ### Parallel Opportunities
 
 - Setup: T004, T005, T008, T009 after T002/T003.
-- Foundational: T014, T016, T017, T020, T021, T022, T024 in parallel once T013 and T018 are done.
+- Foundational: T014, T016, T017, T020, T021, T022, T024, T077 in parallel once T013 and T018 are done; T076 after T075; T078 after T015 and T077.
 - US1: tests T027–T030 in parallel; T034 and T036 in parallel with the migrations.
 - US2: T043 and T044 in parallel.
 - US3: T052 and T053 in parallel.

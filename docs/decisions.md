@@ -126,6 +126,32 @@ intended.
 - Adding Google later needs: provider config, `linkIdentity` for guest conversion, a check that
   Supabase links identities with the same verified email, and a quickstart scenario.
 
+## D7. Visual direction and themes
+
+**Date:** 2026-11-04
+
+**Context.** The product had no visual direction. Three styles were compared on clickable mockups
+of the invitation page and "My trips": warm and friendly, calm and clean, bright and travel-themed.
+
+**Decision.**
+- The style is bright and travel-themed: the invitation is drawn as a ticket, trips as cards,
+  Unbounded for headings, Rubik for text.
+- Cards and buttons are soft colors, clearly separated from the background, with one bright
+  accent on the ticket and the current trips.
+- There are two themes: light "Mediterranean" and dark "Sunset". Their values are in
+  `specs/001-trip-invitations/contracts/theme-tokens.md`.
+- Colors are CSS variables named by role. Components never use raw colors.
+- The theme is switched in the profile and stored there, so it follows the user across devices,
+  including guests.
+- A user without a saved theme always gets the light theme; the device's color scheme is ignored.
+- Text contrast is at least 4.5:1 in every theme.
+
+**Consequences.**
+- Feature 001 gains the `users.theme` column, requirements FR-026–FR-031, and SC-008–SC-009.
+- A new theme needs token values, a code in the theme list, and a translated name, with no
+  migration.
+- Not decided yet: a mascot, icons, and the look of the other screens.
+
 ## Open items
 
 Not decisions yet; to be resolved during `/speckit-plan` for the relevant feature.

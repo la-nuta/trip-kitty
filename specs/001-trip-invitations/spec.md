@@ -38,6 +38,15 @@
   are required only for financial records (constitution v1.1.0, principle III); the organizer's
   last edit wins.
 
+### Session 2026-11-04
+
+- Q: Does the app have visual themes? → A: Yes, two: light and dark. The user switches them in
+  the profile (`docs/decisions.md` D7).
+- Q: Where is the chosen theme kept? → A: In the profile, like the language, so it follows the
+  user across devices, including guests.
+- Q: Which theme does a user without a saved theme get? → A: Always light. The device's color
+  scheme setting is not used.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Create a trip and see it in "My trips" (Priority: P1)
@@ -182,6 +191,14 @@ is open; the form keeps its values and the interface is in English. Reload; it s
    view it, **Then** each sees dates and numbers formatted for their own language.
 7. **Given** a user, **When** they change their display name, **Then** all members of their
    trips see the new name.
+8. **Given** a first-time visitor whose device is set to a dark color scheme, **When** they open
+   any TripKitty page, **Then** the light theme is used.
+9. **Given** a user with a half-filled profile form, **When** they switch the theme, **Then** the
+   whole interface changes theme at once, without a page reload, and the entered values remain.
+10. **Given** a user who chose the dark theme, **When** they open TripKitty on another device
+    where they are recognized, **Then** the dark theme is used.
+11. **Given** two members of the same trip with different themes, **When** they view the same
+    trip, **Then** each sees it in their own theme.
 
 ---
 
@@ -203,10 +220,10 @@ members still see one participant, not two.
 **Acceptance Scenarios**:
 
 1. **Given** a guest who is a member of two trips, **When** they convert to an account with
-   an email address, **Then** they remain a member of both trips with the same name, language, and
+   an email address, **Then** they remain a member of both trips with the same name, language, theme, and
    roles, and other members see no change in the participant list.
 2. **Given** a converted user, **When** they sign in on another device, **Then** they see their
-   trips and their saved interface language.
+   trips and their saved interface language and theme.
 3. **Given** a guest, **When** they try to convert using an email address that already
    belongs to another TripKitty user, **Then** the conversion is refused with an explanation and
    the guest profile is unchanged.
@@ -237,6 +254,10 @@ members still see one participant, not two.
 - A display name or trip name made only of spaces is rejected; leading and trailing spaces are
   trimmed.
 - A trip has only a start date or only an end date: allowed; it is shown with the single date.
+- A saved theme is no longer available: the light theme is used, and the saved value is left
+  unchanged.
+- The browser blocks local storage: the app still works and applies the saved theme after the
+  profile loads, so the light theme may show briefly on load.
 - The organizer tries to remove themselves or leave the trip: not allowed in this feature
   (transferring the organizer role is out of scope).
 - A participant leaves the trip voluntarily: they lose access and the trip disappears from their
@@ -336,10 +357,26 @@ members still see one participant, not two.
   error messages, MUST be available in Russian and English; user-entered text (trip names,
   display names) MUST be shown as entered, without translation.
 
+**Visual themes**
+
+- **FR-026**: The interface MUST be available in a light and a dark theme, defined in
+  `contracts/theme-tokens.md`.
+- **FR-027**: For a user without a saved theme, including a first-time visitor, the theme MUST be
+  light, regardless of the device's color scheme setting.
+- **FR-028**: Users, including guests, MUST be able to change the theme in the profile; the
+  change MUST take effect immediately, without a page reload and without losing values entered
+  on the current screen.
+- **FR-029**: The saved theme MUST be applied on every later visit and on every device where the
+  user is recognized.
+- **FR-030**: In every theme, text MUST have a contrast ratio of at least 4.5:1 against its
+  background.
+- **FR-031**: A returning user MUST NOT see a different theme flash on load in a browser where
+  they have already used their theme.
+
 ### Key Entities
 
 - **User**: A person using TripKitty, either with an account or as a guest. Has a display name,
-  an interface language, and a kind (account or guest). The same user can be a member of many
+  an interface language, a visual theme, and a kind (account or guest). The same user can be a member of many
   trips.
 - **Trip**: A journey whose costs a group shares. Has a name, optional start and end dates, a base
   currency, and an organizer. Has many members and one current invitation link.
@@ -366,6 +403,11 @@ members still see one participant, not two.
   verified in every form of this feature.
 - **SC-007**: Every screen of this feature is fully usable on a phone-sized screen (360 px wide)
   and on desktop, without horizontal scrolling.
+- **SC-008**: 100% of the text and background pairs in `contracts/theme-tokens.md` reach a
+  contrast ratio of at least 4.5:1 in both themes, and no component uses a color outside the
+  theme tokens, verified by an automated check.
+- **SC-009**: Switching the theme never loses values entered in an open form and never reloads
+  the page, verified by an automated test.
 
 ## Assumptions
 
@@ -391,6 +433,8 @@ members still see one participant, not two.
 - Interface languages are limited to Russian and English, and adding another one must need only
   a new translation file and its entry in the language list, with no code changes (constitution
   principle VI).
+- Two themes are enough for this feature. Adding another one must need only a new set of token
+  values, its code in the theme list, and its translated name, with no database migration.
 - Merging an existing account with a guest profile, and signing in with a password, Google, or
   any provider other than email, are out of scope (Google is deferred, `docs/decisions.md` D6).
 - Users have a modern mobile or desktop browser with an internet connection; offline use is out
