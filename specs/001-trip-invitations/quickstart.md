@@ -7,7 +7,8 @@ implementation adds to `package.json`.
 
 ## Prerequisites
 
-- Node.js **≥ 24.15** (Angular 22 requirement; 24.14 is too old). Check with `node -v`.
+- Node.js **26** (pinned in `mise.toml`; Angular 22 also accepts it, 24.14 is too old). Check with
+  `node -v`.
 - Docker running (the Supabase CLI starts the local stack in containers).
 
 ## Setup

@@ -25,7 +25,7 @@ Supabase, Vitest, pgTAP, Playwright, and GitHub Actions.
 ## Technical Context
 
 **Language/Version**: TypeScript 6.0 (strict), SQL (PostgreSQL 17 as shipped by the Supabase
-CLI), Node.js ≥ 24.15
+CLI), Node.js 26 (LTS)
 
 **Primary Dependencies**: Angular 22.2 (`@angular/core`, `@angular/router`, `@angular/forms`,
 `@angular/build`), `@supabase/supabase-js` 2.x, `@jsverse/transloco` 8.x, `@fontsource/unbounded` and `@fontsource/rubik` 5.x, Supabase CLI 2.x
@@ -148,7 +148,7 @@ No constitution violations to justify.
 - Story order follows priorities: P1 create trip → P2 invite/join and access (ship together,
   since Story 3 protects Story 2) → P3 profile/language and guest conversion.
 - Database work per story is test-first: pgTAP test, then migration (principle VII applies to RLS).
-- Before scaffolding, upgrade Node to ≥ 24.15 (research R1).
+- Node 26 is pinned for this project in `mise.toml` (research R1).
 - Amended after `/speckit-analyze` (2026-10-31): no versions on `trips`/`trip_members`, no
   Google sign-in, membership changes reach all members through `trips.members_changed_at`,
   language detection takes the first supported browser language.

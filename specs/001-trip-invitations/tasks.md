@@ -53,7 +53,7 @@ its own.
 
 **Purpose**: Create the Angular workspace, local Supabase, test tooling, and CI.
 
-- [ ] T001 Verify `node -v` reports ≥ 24.15 (Angular 22 requirement, research R1); if not, stop and ask the user to upgrade Node before continuing. Add `"engines": { "node": ">=24.15" }` and an `.nvmrc` with `24` at the repository root
+- [ ] T001 Verify `node -v` reports 26 (pinned in `mise.toml`, research R1); if not, stop and ask the user to fix it before continuing. Add `"engines": { "node": ">=26" }` and an `.nvmrc` with `26` at the repository root
 - [ ] T002 Scaffold the Angular 22.2 workspace at the repository root without overwriting `README.md`, `docs/`, `specs/`, `.specify/`, `.claude/`: run `npx @angular/cli@22.2 new trip-kitty --directory . --style=scss --routing --ssr=false --skip-git --test-runner=vitest` (or the equivalent flags of that CLI version); keep the existing `.gitignore` entries and merge the CLI's entries into it
 - [ ] T003 Pin TypeScript to `~6.0.3` and enable strict mode (`strict`, `noUncheckedIndexedAccess`, `strictTemplates`, `strictInjectionParameters`) in `tsconfig.json`; add npm script `typecheck` = `tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.spec.json --noEmit` in `package.json`
 - [ ] T004 [P] Add ESLint via `npx ng add angular-eslint` and configure `eslint.config.js`; add npm script `lint`
@@ -242,7 +242,7 @@ its own.
 
 - [ ] T070 [P] Run the 360 px Playwright project over all e2e specs and fix any horizontal overflow; also check by hand at 360 px the screens no e2e spec visits: `/profile`, `/trips/:id/edit`, and the organizer's "Removed participants" section (SC-007)
 - [ ] T071 [P] Review all migrations: `join_trip` locks the trip row before counting members (the concurrent last-place case has no automated test, research R4); every membership function sets `trips.members_changed_at`; every function has `SET search_path = ''`, grants match `contracts/rpc.md`, no table grants `insert/update/delete` to client roles beyond `users (display_name, language, theme)`; record findings in the PR description
-- [ ] T072 [P] Update `README.md`: prerequisites (Node ≥ 24.15, Docker), setup and test commands from `quickstart.md`, link to `specs/001-trip-invitations/`
+- [ ] T072 [P] Update `README.md`: prerequisites (Node 26, Docker), setup and test commands from `quickstart.md`, link to `specs/001-trip-invitations/`
 - [ ] T073 Run every manual scenario in `specs/001-trip-invitations/quickstart.md` and note the result of each in the PR description
 - [ ] T074 Run the full gate locally — `npm run lint && npm run typecheck && npm test -- --watch=false && npm run db:test && npm run e2e` — and confirm CI is green on the pull request
 
