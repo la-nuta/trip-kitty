@@ -28,7 +28,7 @@ Supabase, Vitest, pgTAP, Playwright, and GitHub Actions.
 CLI), Node.js 26 (LTS)
 
 **Primary Dependencies**: Angular 22.2 (`@angular/core`, `@angular/router`, `@angular/forms`,
-`@angular/build`), `@supabase/supabase-js` 2.x, `@jsverse/transloco` 8.x, `@fontsource/unbounded` and `@fontsource/rubik` 5.x, Supabase CLI 2.x
+`@angular/build`), `@supabase/supabase-js` 2.x, `@jsverse/transloco` 8.x, `@fontsource/unbounded` and `@fontsource/rubik` 5.x, Supabase CLI 3.x
 (dev)
 
 **Storage**: Supabase PostgreSQL; tables `users`, `trips`, `trip_members`, `invitations` (see

@@ -13,7 +13,7 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
-    "db:types": "supabase gen types typescript --local > src/app/core/supabase/database.types.ts",
+    "db:types": "supabase gen types typescript > src/app/core/supabase/database.types.ts",
     "e2e": "playwright test --pass-with-no-tests"
   },
   "private": true,
@@ -41,7 +41,7 @@
     "eslint": "^10.12.0",
     "jsdom": "^30.0.0",
     "prettier": "^3.8.1",
-    "supabase": "^2.122.1",
+    "supabase": "^3.0.0",
     "typescript": "~6.0.3",
     "typescript-eslint": "8.71.0",
     "vitest": "^5.0.0"
