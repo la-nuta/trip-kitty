@@ -1,3 +1,18 @@
+<!--
+Sync Impact Report
+- Version: 1.0.0 → 1.1.0 (MINOR: the versioning rule in principle III is narrowed to financial
+  records; everything that complied before still complies)
+- Modified principle: III. Integrity of Collaborative Changes — "Mutable records carry a version"
+  now applies to financial records only; profiles, trip details, memberships, and invitations
+  are exempt.
+- Rationale: only financial records are edited concurrently in a way that can corrupt balances.
+  The participant set is fixed before expenses are allocated, and the interface language affects
+  display only (decision by the project owner, 2026-10-31).
+- Templates: no changes needed.
+- Follow-up: specs/001-trip-invitations drops `version` and `version_conflict` from `trips` and
+  `trip_members`.
+-->
+
 # TripKitty Constitution
 
 TripKitty is a travel expense organizer: shared expense tracking for travelers with AI receipt
@@ -48,8 +63,11 @@ by the server refusing forbidden actions.
   of drafts, changing a transfer status) MUST run in a single transaction.
 - Imports, confirmations, and transfers MUST be idempotent: a repeated request creates no
   duplicate operation and does not change a balance a second time.
-- Mutable records carry a version; a write with a stale version is rejected as a conflict.
-  Silently overwriting others' changes is FORBIDDEN.
+- Mutable financial records (expenses, their payments and splits, transfers, exchange rates)
+  carry a version; a write with a stale version is rejected as a conflict. Silently overwriting
+  others' financial changes is FORBIDDEN. Non-financial records (profiles and interface language,
+  trip details, memberships, invitations) do not require a version: the participant set is fixed
+  before expenses are allocated, and the interface language affects display only.
 - Every financial change is written to `activity_log`: author, time, what changed.
   Cancellations and rejections are kept in history, not deleted.
 - Trip changes are delivered to other participants via Supabase Realtime.
@@ -163,4 +181,4 @@ only cheap protection.
   The product interface remains bilingual (RU/EN) per principle VI.
 - Runtime development guidance lives in `docs/plan.md` and in feature specs (`specs/`).
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-25 | **Last Amended**: 2026-10-25
+**Version**: 1.1.0 | **Ratified**: 2026-10-25 | **Last Amended**: 2026-10-31

@@ -62,7 +62,7 @@ Invitations, roles, participant management, trip currency, export, archiving.
 
 ### User profile
 Name and interface language (Russian / English). The language is stored in the profile,
-including for guests.
+including for guests. The light or dark theme is chosen and stored the same way.
 
 ## 3a. Language support
 
@@ -180,7 +180,7 @@ total cost but does not affect debts.
 
 ## 12. Technical architecture
 
-- **Frontend:** Angular with Signals, mobile-first UI.
+- **Frontend:** Angular with Signals, mobile-first UI, light and dark themes on CSS variables.
 - **Localization:** RU/EN translation files with runtime language switching (e.g. Transloco);
   date, number, and currency formatting via `Intl` for the selected locale. The user's language
   is stored in `users`.
