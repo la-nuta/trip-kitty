@@ -7,7 +7,7 @@ Package versions were checked against the npm registry on 2026-10-27.
 ## R1. Toolchain versions
 
 **Decision**: Angular 22.2 (`@angular/core`, `@angular/cli`, `@angular/build`), TypeScript 6.0.x,
-Node.js 26 (current LTS line), npm. `@supabase/supabase-js` 2.x, Supabase CLI 2.x as a dev
+Node.js 26 (current LTS line), npm. `@supabase/supabase-js` 2.x, Supabase CLI 3.x as a dev
 dependency (`supabase` npm package), `@jsverse/transloco` 8.x.
 
 **Rationale**: Latest stable lines at the time of planning. Angular 22.2 requires TypeScript
