@@ -12,8 +12,7 @@ dependency (`supabase` npm package), `@jsverse/transloco` 8.x.
 
 **Rationale**: Latest stable lines at the time of planning. Angular 22.2 requires TypeScript
 `>=6.0 <6.1` (so not TypeScript 7.x, which is the npm `latest`) and Node `^22.22.3 || ^24.15.0 ||
->=26`. The local machine has Node 24.14.1, which is **below** the minimum: upgrade Node before
-scaffolding (see [quickstart.md](./quickstart.md)).
+>=26`. The project pins Node 26 in `mise.toml` (see [quickstart.md](./quickstart.md)).
 
 **Alternatives considered**: pnpm (not installed locally; npm is enough for a single app);
 pinning Angular 21 (no reason, nothing depends on it).
