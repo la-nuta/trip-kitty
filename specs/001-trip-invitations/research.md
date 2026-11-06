@@ -128,7 +128,7 @@ has better signal support).
 
 ## R8. Detecting untranslated strings (SC-005)
 
-**Decision**: Two automated checks in the unit test suite:
+**Decision**: Three automated checks in the unit test suite:
 1. **Key parity** — every key in `en.json` exists in every other language file and vice versa;
    every key used in templates and code (`t('…')`, `transloco` pipe) exists in `en.json`.
 2. **No bare text in templates** — a test parses every component template with
@@ -139,7 +139,7 @@ has better signal support).
    texts, `document.title`) goes only through `translate(...)`; a test scans `src/**/*.ts`
    (except specs) for string literals passed to those APIs.
 
-**Rationale**: Both checks run in Vitest with no extra tooling and give the constitution's
+**Rationale**: All three checks run in Vitest with no extra tooling and give the constitution's
 merge gate "no untranslated UI strings" a concrete test.
 
 **Alternatives considered**: `@angular-eslint/template/i18n` (built for Angular's own i18n

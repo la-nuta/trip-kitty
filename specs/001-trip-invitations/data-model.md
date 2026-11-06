@@ -41,7 +41,7 @@ Profile of every person, including guests. One row per `auth.users` row, same id
 | `name` | text | 1–100 characters after trim (FR-001) |
 | `start_date` | date, null | |
 | `end_date` | date, null | `end_date >= start_date` when both set (FR-002) |
-| `base_currency` | char(3) | `^[A-Z]{3}$`; the client offers ISO 4217 codes (FR-003) |
+| `base_currency` | char(3) | `^[A-Z]{3}$`; the client offers ISO 4217 codes (FR-003); the server checks the format only (spec Assumptions) |
 | `created_at` | timestamptz | default `now()` |
 | `updated_at` | timestamptz | set by trigger |
 | `members_changed_at` | timestamptz | set by the membership functions on every join, leave, removal, and unblock; lets Realtime notify all active members (see below) |
@@ -116,6 +116,8 @@ Helper functions (`SECURITY DEFINER`, `STABLE`) avoid recursive policies:
 | `invitations` | organizer of the trip | none — via functions only |
 
 The `anon` role (no session) has no table access; it can call only `get_invitation_preview`.
+Grants enforce both: `SELECT` is revoked from `anon`, and every function revokes `EXECUTE` from
+`PUBLIC` and `anon`.
 Guests are the `authenticated` role with `is_anonymous = true`; they differ from account holders
 only in `create_trip` (refused, FR-001a).
 
@@ -126,8 +128,8 @@ only in `create_trip` (refused, FR-001a).
   `current_or_upcoming`. Ordering per group as in FR-005.
 - **Interface language** (FR-021, FR-023): profile language if set; otherwise the first browser
   language whose primary subtag is available; otherwise `en`.
-- **Theme** (FR-027, FR-029, FR-031): profile theme if it is available; otherwise `light`. Before
-  the profile loads, the copy kept in this browser (`tripkitty.theme` in `localStorage`) is used
+- **Theme** (FR-027, FR-029, FR-031): once the profile has loaded, the profile theme if it is
+  available; otherwise `light`, even when a copy is cached. Before the profile loads, the copy kept in this browser (`tripkitty.theme` in `localStorage`) is used
   if it is available; that copy is only a cache and is cleared on sign-out. Unlike the language,
   a default theme is never written to the profile: `null` means "not chosen".
 
