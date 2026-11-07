@@ -1,0 +1,57 @@
+{
+  "common": {
+    "appName": "TripKitty",
+    "language": "Language",
+    "profile": "Profile",
+    "notFoundTitle": "Not found or no access",
+    "notFoundText": "This page does not exist, or you do not have access to it.",
+    "toHome": "Back to the main page",
+    "comingSoonTitle": "Nothing here yet",
+    "comingSoonText": "This section will appear soon."
+  },
+  "auth": {
+    "signInTitle": "Sign in",
+    "emailLabel": "Email",
+    "sendCode": "Send code",
+    "codeSent": "We sent a one-time code to {{email}}. You can also use the link in the email.",
+    "codeLabel": "One-time code",
+    "verifyCode": "Sign in",
+    "changeEmail": "Use another email",
+    "guestWarning": "You are using a guest profile. If you sign in to an account, the guest profile will be lost and will not be merged with the account.",
+    "completing": "Signing you in…",
+    "linkFailed": "This sign-in link is invalid or has expired.",
+    "toSignIn": "Back to sign-in"
+  },
+  "profile": {
+    "setupTitle": "Your profile",
+    "displayNameLabel": "Your name",
+    "languageLabel": "Interface language",
+    "save": "Continue"
+  },
+  "trips": {},
+  "invitations": {},
+  "members": {},
+  "errors": {
+    "not_authenticated": "Please sign in to continue.",
+    "profile_incomplete": "Please complete your profile first.",
+    "guest_not_allowed": "This action is available only with an account.",
+    "not_found": "Not found or no access.",
+    "not_organizer": "Only the organizer can do this.",
+    "invalid_invitation": "This invitation is no longer valid.",
+    "trip_full": "This trip already has 20 participants.",
+    "removed_from_trip": "You were removed from this trip.",
+    "cannot_remove_self": "The organizer cannot be removed.",
+    "organizer_cannot_leave": "The organizer cannot leave the trip.",
+    "validation_failed": "Please check the entered values.",
+    "account_exists": "An account with this email already exists.",
+    "invalid_code": "The code is wrong or has expired.",
+    "rate_limited": "Too many attempts. Please try again later.",
+    "unknown": "Something went wrong. Please try again."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "email": "Enter a valid email address.",
+    "codeFormat": "Enter the 6-digit code.",
+    "displayNameLength": "The name must be from 1 to 50 characters."
+  }
+}

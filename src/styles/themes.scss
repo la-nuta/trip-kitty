@@ -1,0 +1,37 @@
+// Values agreed in specs/001-trip-invitations/contracts/theme-tokens.md.
+// To add a theme, follow "Adding a theme" in that contract.
+
+:root {
+  --color-bg: #fbf3e6;
+  --color-text: #1f3a52;
+  --color-brand: #8f4e3a;
+  --color-accent: #f98f72;
+  --color-card-2: #8fbdd0;
+  --color-card-3: #7dc3bd;
+  --color-on-card: #1f3a52;
+  --color-action: #3f6a8c;
+  --color-on-action: #ffffff;
+  --color-field: #ffffff;
+  --color-on-field: #1f2a3a;
+  --color-error: #a32a1e;
+  --color-focus: #1f5f8b;
+
+  --font-heading: 'Unbounded', sans-serif;
+  --font-body: 'Rubik', sans-serif;
+}
+
+[data-theme='dark'] {
+  --color-bg: #4a2a63;
+  --color-text: #ffffff;
+  --color-brand: #f4c89b;
+  --color-accent: #ff8a73;
+  --color-card-2: #c9d8f2;
+  --color-card-3: #d8ccee;
+  --color-on-card: #3a2148;
+  --color-action: #c9b8f0;
+  --color-on-action: #3a2148;
+  --color-field: #ffffff;
+  --color-on-field: #1f2a3a;
+  --color-error: #ffab9a;
+  --color-focus: #c9b8f0;
+}

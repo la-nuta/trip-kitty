@@ -1,0 +1,5 @@
+<label class="label" [attr.for]="controlId()">{{ labelKey() | transloco }}</label>
+<ng-content />
+@if (errorKey(); as key) {
+  <p class="error" role="alert" [id]="controlId() + '-error'">{{ key | transloco }}</p>
+}

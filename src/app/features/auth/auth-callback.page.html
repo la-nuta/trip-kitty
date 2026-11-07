@@ -1,0 +1,6 @@
+@if (failed()) {
+  <p class="form-error" role="alert">{{ 'auth.linkFailed' | transloco }}</p>
+  <a class="link" routerLink="/sign-in">{{ 'auth.toSignIn' | transloco }}</a>
+} @else {
+  <p role="status">{{ 'auth.completing' | transloco }}</p>
+}

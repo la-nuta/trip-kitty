@@ -31,6 +31,8 @@ below and whose `SQLSTATE` is `P0001`. The client maps codes to translation keys
 | `organizer_cannot_leave` | Organizer tried to leave |
 | `validation_failed` | Input breaks a rule; `detail` holds the field name (`name`, `dates`, `base_currency`) |
 | `account_exists` | Supabase Auth error, not raised by these functions: during guest conversion the email belongs to another user |
+| `invalid_code` | Client key for the Supabase Auth error `otp_expired`: the one-time code is wrong or expired |
+| `rate_limited` | Client key for the Supabase Auth errors `over_email_send_rate_limit` and `over_request_rate_limit` |
 
 ## Trips
 

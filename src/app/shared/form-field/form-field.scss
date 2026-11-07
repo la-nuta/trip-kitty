@@ -1,0 +1,15 @@
+:host {
+  display: block;
+  margin-block-end: var(--space-3);
+}
+
+.label {
+  display: block;
+  margin-block-end: var(--space-1);
+  font-weight: 500;
+}
+
+.error {
+  margin-block: var(--space-1) 0;
+  color: var(--color-error);
+}

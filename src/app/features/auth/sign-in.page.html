@@ -1,0 +1,58 @@
+<h1>{{ 'auth.signInTitle' | transloco }}</h1>
+
+@if (auth.isGuest()) {
+  <p class="notice">{{ 'auth.guestWarning' | transloco }}</p>
+}
+
+@if (step() === 'email') {
+  <form [formGroup]="emailForm" (ngSubmit)="sendCode()">
+    <app-form-field labelKey="auth.emailLabel" controlId="email" [errorKey]="emailErrorKey()">
+      <input
+        id="email"
+        type="email"
+        autocomplete="email"
+        [formControl]="email"
+        [attr.aria-invalid]="emailErrorKey() ? 'true' : null"
+        [attr.aria-describedby]="emailErrorKey() ? 'email-error' : null"
+      />
+    </app-form-field>
+
+    @if (errorKey(); as key) {
+      <p class="form-error" role="alert">{{ key | transloco }}</p>
+    }
+
+    <button class="button" type="submit" [disabled]="busy()">
+      {{ 'auth.sendCode' | transloco }}
+    </button>
+  </form>
+} @else {
+  <form [formGroup]="codeForm" (ngSubmit)="verifyCode()">
+    <p>{{ 'auth.codeSent' | transloco: { email: email.value } }}</p>
+
+    <app-form-field labelKey="auth.codeLabel" controlId="code" [errorKey]="codeErrorKey()">
+      <input
+        id="code"
+        type="text"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        maxlength="6"
+        [formControl]="code"
+        [attr.aria-invalid]="codeErrorKey() ? 'true' : null"
+        [attr.aria-describedby]="codeErrorKey() ? 'code-error' : null"
+      />
+    </app-form-field>
+
+    @if (errorKey(); as key) {
+      <p class="form-error" role="alert">{{ key | transloco }}</p>
+    }
+
+    <div class="actions">
+      <button class="button" type="submit" [disabled]="busy()">
+        {{ 'auth.verifyCode' | transloco }}
+      </button>
+      <button class="link" type="button" (click)="changeEmail()">
+        {{ 'auth.changeEmail' | transloco }}
+      </button>
+    </div>
+  </form>
+}

@@ -1,0 +1,5 @@
+<h1>{{ titleKey() | transloco }}</h1>
+@if (textKey(); as key) {
+  <p>{{ key | transloco }}</p>
+}
+<ng-content />
