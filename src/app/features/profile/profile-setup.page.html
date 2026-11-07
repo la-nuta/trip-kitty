@@ -1,0 +1,36 @@
+<h1>{{ 'profile.setupTitle' | transloco }}</h1>
+
+<form [formGroup]="form" (ngSubmit)="save()">
+  <app-form-field
+    labelKey="profile.displayNameLabel"
+    controlId="display-name"
+    [errorKey]="nameErrorKey()"
+  >
+    <input
+      id="display-name"
+      type="text"
+      autocomplete="name"
+      [formControl]="name"
+      [attr.aria-invalid]="nameErrorKey() ? 'true' : null"
+      [attr.aria-describedby]="nameErrorKey() ? 'display-name-error' : null"
+    />
+  </app-form-field>
+
+  <app-form-field labelKey="profile.languageLabel" controlId="language">
+    <select id="language" (change)="onLanguageChange($event)">
+      @for (code of languages.available; track code) {
+        <option [value]="code" [selected]="code === languages.language()">
+          {{ languageName(code) }}
+        </option>
+      }
+    </select>
+  </app-form-field>
+
+  @if (errorKey(); as key) {
+    <p class="form-error" role="alert">{{ key | transloco }}</p>
+  }
+
+  <button class="button" type="submit" [disabled]="busy()">
+    {{ 'profile.save' | transloco }}
+  </button>
+</form>

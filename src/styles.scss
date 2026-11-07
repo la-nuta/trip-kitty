@@ -1,1 +1,109 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@fontsource/unbounded/latin-700.css';
+@use '@fontsource/unbounded/cyrillic-700.css';
+@use '@fontsource/rubik/latin-400.css';
+@use '@fontsource/rubik/cyrillic-400.css';
+@use '@fontsource/rubik/latin-500.css';
+@use '@fontsource/rubik/cyrillic-500.css';
+@use './styles/themes';
+
+:root {
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 2rem;
+  --radius: 0.5rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow-wrap: anywhere;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+h1 {
+  margin-block: 0 var(--space-3);
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+p {
+  margin-block: 0 var(--space-3);
+}
+
+input,
+select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--color-field);
+  border-radius: var(--radius);
+  background: var(--color-field);
+  color: var(--color-on-field);
+  font: inherit;
+}
+
+[aria-invalid='true'] {
+  border-color: var(--color-error);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.button {
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--color-action);
+  color: var(--color-on-action);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 500;
+}
+
+.button:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-brand);
+  cursor: pointer;
+  font: inherit;
+  text-decoration: underline;
+}
+
+.notice {
+  padding: var(--space-3);
+  border-radius: var(--radius);
+  background: var(--color-accent);
+  color: var(--color-on-card);
+}
+
+.form-error {
+  color: var(--color-error);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
