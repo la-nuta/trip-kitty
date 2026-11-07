@@ -24,8 +24,8 @@ when `data-theme` is missing or unknown; the dark theme overrides the tokens und
 | `--color-on-action` | Text on primary buttons | `#FFFFFF` | `#3A2148` |
 | `--color-field` | Input background | `#FFFFFF` | `#FFFFFF` |
 | `--color-on-field` | Input text | `#1F2A3A` | `#1F2A3A` |
-| `--color-error` | Error messages on the page background | `#A32A1E` | `#FFD9CF` |
-| `--color-focus` | Keyboard focus outline | `#1F5F8B` | `#FFE08A` |
+| `--color-error` | Error messages on the page background, border of an invalid field | `#A32A1E` | `#FFAB9A` |
+| `--color-focus` | Keyboard focus outline | `#1F5F8B` | `#C9B8F0` |
 
 New roles may be added during implementation. Each one needs a value in every theme and, if it colors text, a pair in the
 contrast check.
@@ -43,10 +43,10 @@ Every pair must reach at least 4.5 : 1 in every theme. Current values:
 | `--color-on-card` on `--color-card-3` | 5.8 : 1 | 9.2 : 1 |
 | `--color-on-action` on `--color-action` | 5.8 : 1 | 7.8 : 1 |
 | `--color-on-field` on `--color-field` | 14.5 : 1 | 14.5 : 1 |
-| `--color-error` on `--color-bg` | 6.6 : 1 | 8.9 : 1 |
+| `--color-error` on `--color-bg` | 6.6 : 1 | 6.4 : 1 |
 
 `--color-focus` is not text, so it needs at least 3 : 1 against `--color-bg`: 6.2 : 1 in the
-light theme and 9.0 : 1 in the dark theme.
+light theme and 6.4 : 1 in the dark theme.
 
 ## Using the tokens
 
