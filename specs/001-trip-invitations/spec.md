@@ -178,7 +178,7 @@ is open; the form keeps its values and the interface is in English. Reload; it s
 
 1. **Given** a first-time visitor whose browser language is Russian, **When** they open any
    TripKitty page, including an invitation page, **Then** the interface is in Russian.
-2. **Given** a first-time visitor whose browser language is anything other than Russian,
+2. **Given** a first-time visitor whose browser language list contains no supported language,
    **When** they open any TripKitty page, **Then** the interface is in English.
 3. **Given** a user with a saved language, **When** they open TripKitty in a browser with a
    different language, **Then** their saved language is used, not the browser language.
@@ -214,7 +214,7 @@ conversion a guest is tied to a single browser. It is needed for the "persists a
 requirement but not for the first working version of joining.
 
 **Independent Test**: Join a trip as a guest, convert to an account with an email, then sign in
-with that email in another browser; the same trips, name, and language are there, and the other
+with that email in another browser; the same trips, name, language, and theme are there, and the other
 members still see one participant, not two.
 
 **Acceptance Scenarios**:
@@ -247,6 +247,9 @@ members still see one participant, not two.
 - A guest tries to convert to an account using an email address that already belongs to
   another TripKitty user: conversion is refused with an explanation; profiles are not merged in
   this feature.
+- A guest who already has an account opens the sign-in page: they can sign in after a warning that
+  the guest profile will be lost and not merged with the account. An account holder who opens the
+  sign-in page goes to "My trips".
 - A signed-in user opens an invitation link while already signed in: they join directly with
   their existing profile, after confirming on the invitation page.
 - Two participants have the same display name: both are allowed; the participant list
@@ -324,19 +327,22 @@ members still see one participant, not two.
 **Identity and access**
 
 - **FR-015**: A guest MUST get a persistent identity: returning to TripKitty from the same browser
-  recognizes them as the same participant, with the same name, language, and trip memberships.
+  recognizes them as the same participant, with the same name, language, theme, and trip memberships.
 - **FR-016**: A guest MUST be able to convert their guest profile into an account at any time,
-  keeping the same identity, display name, language, and all trip memberships and roles; after
+  keeping the same identity, display name, language, theme, and all trip memberships and roles; after
   conversion they can sign in on any device. A guest who has not converted is recognized only in
   the browser where they joined.
 - **FR-017**: Account holders MUST be able to sign in with an email one-time code (or the
   one-time link in the same email). Other sign-in methods, including Google, are out of scope
-  for this feature.
+  for this feature. The one-time link MUST return the person to the page they started from, such
+  as an invitation, even when the email is opened in another browser.
 - **FR-018**: Every access rule in this feature MUST be enforced by the server; a non-member MUST
   NOT be able to read or change any trip data, and a non-organizer MUST NOT be able to perform
   organizer-only actions, regardless of the client used.
 - **FR-019**: When a non-member opens a trip's address, the system MUST show a message that does
   not reveal whether the trip exists.
+- **FR-032**: Account holders MUST be able to sign out from the profile. Guests MUST NOT be offered
+  sign-out, because a guest who signs out cannot return to their profile.
 
 **Profile and language**
 
@@ -346,8 +352,8 @@ members still see one participant, not two.
   language in the browser's list of preferred languages that TripKitty supports, matching any
   regional variant (`ru-UA` → Russian); if none is supported, English. This applies to the
   invitation page as well.
-- **FR-022**: Users MUST be able to change their display name and interface language in the
-  profile; the language change MUST take effect immediately without losing values entered on the
+- **FR-022**: Users MUST be able to change their display name in the profile and their
+  interface language in the profile or the app header; the language change MUST take effect immediately without losing values entered on the
   current screen.
 - **FR-023**: The saved interface language MUST be applied on every later visit and on every
   device where the user is recognized, taking precedence over the browser language.
@@ -423,6 +429,10 @@ members still see one participant, not two.
   link expiry dates, and join approval by the organizer are not needed in the MVP.
 - The base currency can be changed freely in this feature because no expenses exist yet; the
   expenses feature will decide whether to restrict it once expenses are recorded.
+- The server checks only the format of the base currency code (three capital letters); the app
+  offers ISO 4217 codes. A request that bypasses the app can store an unknown code in that
+  organizer's own trip. A server-side currency list arrives with the expenses and exchange-rate
+  features, when the code starts to affect money.
 - Deleting and archiving trips, transferring the organizer role, and notifications (email or
   push) are out of scope.
 - No activity history is recorded for trip and membership events in this feature (no

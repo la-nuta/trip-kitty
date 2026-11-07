@@ -13,8 +13,8 @@ A signed-in account holder creates a trip (name, optional dates, base currency) 
 people through one resettable link; invitees join with an account (email one-time code) or as a
 guest, and guests can later convert to an account without losing anything. Only active members
 see a trip; the organizer can remove, block, and unblock participants; a trip holds at most 20
-active members. Every user has a display name and a Russian/English interface language detected
-from the browser and stored in the profile.
+active members. Every user has a display name, a Russian/English interface language detected
+from the browser, and a light or dark theme, all stored in the profile.
 
 Technically: an Angular 22 SPA (standalone components, signals) on Supabase. Guests are Supabase
 anonymous users; all writes go through transactional PostgreSQL functions; reads go through RLS;
@@ -70,7 +70,7 @@ at least 4.5:1 in both themes ([contracts/theme-tokens.md](./contracts/theme-tok
 | V. AI Recognition Without Guesswork | No | — | ✅ Pass (n/a) |
 | VI. Localization Without Hardcoding | Yes | Transloco with files + language manifest (no code for a new language); codes in the database, error codes from functions; `Intl` for formatting and currency names; language in `users`, including guests; automated checks for key parity and bare template text (research R8) | ✅ Pass |
 | VII. Tested Financial Logic | RLS tests: yes; financial logic: none yet | pgTAP for outsider, guest, participant, organizer; pure functions (trip grouping, language detection) unit-tested; `fast-check` arrives with expenses | ✅ Pass |
-| Stack: new dependencies | — | All in the constitution's stack. Testing tools (Vitest, pgTAP, Playwright) and Cloudflare hosting are justified in `docs/decisions.md` D4–D5 and research R9–R10 Self-hosted fonts are presentation assets (research R11). | ✅ Pass |
+| Stack: new dependencies | — | All in the constitution's stack. Testing tools (Vitest, pgTAP, Playwright) and Cloudflare hosting are justified in `docs/decisions.md` D4–D5 and research R9–R10. Self-hosted fonts are presentation assets (research R11). | ✅ Pass |
 
 **Post-design re-check (after Phase 1)**: still passes. The data model keeps the organizer as a
 membership role (no duplicate source of truth), and the RPC contract returns codes only, never
@@ -127,7 +127,7 @@ public/i18n/
 supabase/
 ├── config.toml                   # anonymous sign-ins, email OTP
 ├── migrations/                   # tables, RLS, helper and RPC functions, triggers
-└── tests/                        # pgTAP: rls_*.sql, functions_*.sql
+└── tests/                        # pgTAP: 000_helpers.sql, NNN_*_test.sql
 
 e2e/                              # Playwright smoke specs
 .github/workflows/ci.yml          # lint, typecheck, unit, db test, e2e

@@ -29,7 +29,7 @@ key from `src/environments/`.
 ```sh
 npm run lint
 npm run typecheck      # tsc --noEmit, strict
-npm test               # Vitest: pure functions, components, translation checks (R8)
+npm test -- --watch=false  # Vitest: pure functions, components, translation checks (R8)
 npm run db:test        # pgTAP: RLS and functions for outsider, guest, participant, organizer
 npm run e2e            # Playwright smoke suite (needs db:start)
 ```
@@ -78,7 +78,7 @@ people.
    Expected: "invitation is no longer valid"; existing members unaffected.
 
 8. **Language switch keeps form values** (Story 4, SC-006)
-   Start filling the create-trip form, switch the language in the profile menu.
+   Start filling the create-trip form, switch the language in the header.
    Expected: the interface changes language, the form keeps its values; dates are formatted for
    the new language. Reload: the language stays.
 
