@@ -1,0 +1,29 @@
+:host {
+  position: relative;
+  display: block;
+}
+
+.listbox {
+  position: absolute;
+  z-index: 1;
+  inset-inline: 0;
+  max-height: 15rem;
+  margin: var(--space-1) 0 0;
+  padding: var(--space-1) 0;
+  overflow-y: auto;
+  border-radius: var(--radius);
+  background: var(--color-field);
+  color: var(--color-on-field);
+  list-style: none;
+}
+
+[role='option'] {
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+}
+
+[role='option'].active,
+[role='option']:hover {
+  background: var(--color-action);
+  color: var(--color-on-action);
+}

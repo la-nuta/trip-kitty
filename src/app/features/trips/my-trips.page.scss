@@ -1,0 +1,47 @@
+.group h2 {
+  margin-block: var(--space-4) var(--space-2);
+  color: var(--color-brand);
+  font-family: var(--font-heading);
+  font-size: 1rem;
+}
+
+.cards {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-radius: var(--radius);
+  color: var(--color-on-card);
+  text-decoration: none;
+}
+
+.card-accent {
+  background: var(--color-accent);
+}
+
+.card-undated {
+  background: var(--color-card-2);
+}
+
+.card-past {
+  background: var(--color-card-3);
+}
+
+.card-name {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+}

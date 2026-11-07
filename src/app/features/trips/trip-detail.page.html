@@ -1,0 +1,43 @@
+@switch (state()) {
+  @case ('loading') {
+    <p role="status">{{ 'common.loading' | transloco }}</p>
+  }
+  @case ('notFound') {
+    <app-page-not-found />
+  }
+  @case ('error') {
+    <p class="form-error" role="alert">{{ errorKey() | transloco }}</p>
+  }
+  @case ('ready') {
+    @if (trip(); as trip) {
+      <a class="link" routerLink="/trips">{{ 'trips.backToTrips' | transloco }}</a>
+
+      <div class="title-row">
+        <h1>{{ trip.name }}</h1>
+        @if (trip.viewerRole === 'organizer') {
+          <a class="button" [routerLink]="['/trips', trip.id, 'edit']">
+            {{ 'trips.edit' | transloco }}
+          </a>
+        }
+      </div>
+
+      <p class="facts">
+        <app-trip-dates [start]="trip.start_date" [end]="trip.end_date" />
+        <span>{{ 'trips.baseCurrency' | transloco: { code: trip.base_currency } }}</span>
+      </p>
+
+      <h2>{{ 'trips.participantsTitle' | transloco }}</h2>
+      <ul class="members">
+        @for (member of trip.members; track member.userId) {
+          <li>
+            <span class="member-name">{{ member.displayName }}</span>
+            @if (member.userId === auth.user()?.id) {
+              <span class="you">{{ 'trips.you' | transloco }}</span>
+            }
+            <span class="member-role">{{ roleKeys[member.role] | transloco }}</span>
+          </li>
+        }
+      </ul>
+    }
+  }
+}

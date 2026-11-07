@@ -1,0 +1,34 @@
+<input
+  type="text"
+  role="combobox"
+  autocomplete="off"
+  aria-autocomplete="list"
+  [id]="inputId()"
+  [value]="displayValue()"
+  [disabled]="disabled()"
+  [attr.placeholder]="open() ? selectedLabel() : null"
+  [attr.aria-expanded]="open()"
+  [attr.aria-controls]="listboxId()"
+  [attr.aria-activedescendant]="activeId()"
+  [attr.aria-invalid]="invalid() ? 'true' : null"
+  [attr.aria-describedby]="describedBy()"
+  (focus)="onFocus()"
+  (input)="onInput($event)"
+  (keydown)="onKeydown($event)"
+  (blur)="onBlur()"
+/>
+@if (open() && matches().length > 0) {
+  <ul class="listbox" role="listbox" [id]="listboxId()">
+    @for (option of matches(); track option.code; let index = $index) {
+      <li
+        role="option"
+        [id]="optionId(index)"
+        [class.active]="index === active()"
+        [attr.aria-selected]="option.code === value()"
+        (mousedown)="onOptionPointer($event, option.code)"
+      >
+        {{ option.label }}
+      </li>
+    }
+  </ul>
+}
