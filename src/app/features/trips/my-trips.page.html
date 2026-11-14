@@ -1,0 +1,48 @@
+<div class="title-row">
+  <h1>{{ 'trips.myTrips' | transloco }}</h1>
+  @if (!auth.isGuest()) {
+    <a class="button" routerLink="/trips/new">{{ 'trips.createTrip' | transloco }}</a>
+  }
+</div>
+
+@if (auth.isGuest()) {
+  <p class="notice">{{ 'trips.guestCannotCreate' | transloco }}</p>
+}
+
+@switch (state()) {
+  @case ('loading') {
+    <p role="status">{{ 'common.loading' | transloco }}</p>
+  }
+  @case ('error') {
+    <p class="form-error" role="alert">{{ errorKey() | transloco }}</p>
+  }
+  @case ('ready') {
+    @for (group of groups(); track group.key) {
+      <section class="group">
+        <h2>{{ group.titleKey | transloco }}</h2>
+        <ul class="cards">
+          @for (trip of group.trips; track trip.id) {
+            <li>
+              <a class="card" [class]="group.cardClass" [routerLink]="['/trips', trip.id]">
+                <span class="card-name">{{ trip.name }}</span>
+                <app-trip-dates [start]="trip.start_date" [end]="trip.end_date" />
+                <span class="card-meta">
+                  <span>{{ trip.base_currency }}</span>
+                  <span>
+                    {{
+                      'trips.participantCount'
+                        | transloco: { count: (trip.memberCount | intlNumber) }
+                    }}
+                  </span>
+                  <span>{{ roleKeys[trip.role] | transloco }}</span>
+                </span>
+              </a>
+            </li>
+          }
+        </ul>
+      </section>
+    } @empty {
+      <app-empty-state titleKey="trips.emptyTitle" textKey="trips.emptyText" />
+    }
+  }
+}

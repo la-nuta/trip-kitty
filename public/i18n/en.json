@@ -7,7 +7,8 @@
     "notFoundText": "This page does not exist, or you do not have access to it.",
     "toHome": "Back to the main page",
     "comingSoonTitle": "Nothing here yet",
-    "comingSoonText": "This section will appear soon."
+    "comingSoonText": "This section will appear soon.",
+    "loading": "Loading…"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -28,7 +29,33 @@
     "languageLabel": "Interface language",
     "save": "Continue"
   },
-  "trips": {},
+  "trips": {
+    "myTrips": "My trips",
+    "createTrip": "Create trip",
+    "emptyTitle": "No trips yet",
+    "emptyText": "Create a trip and invite your friends with a link.",
+    "guestCannotCreate": "Creating a trip needs an account. You can still join trips by invitation.",
+    "groupCurrent": "Current and upcoming",
+    "groupUndated": "Without dates",
+    "groupPast": "Past",
+    "noDates": "Dates not set",
+    "participantCount": "Participants: {{count}}",
+    "roleOrganizer": "Organizer",
+    "roleParticipant": "Participant",
+    "nameLabel": "Trip name",
+    "startDateLabel": "Start date",
+    "endDateLabel": "End date",
+    "currencyLabel": "Base currency",
+    "newTitle": "New trip",
+    "editTitle": "Edit trip",
+    "create": "Create trip",
+    "save": "Save",
+    "edit": "Edit",
+    "participantsTitle": "Participants",
+    "you": "you",
+    "backToTrips": "All trips",
+    "baseCurrency": "Base currency: {{code}}"
+  },
   "invitations": {},
   "members": {},
   "errors": {
@@ -52,6 +79,8 @@
     "required": "This field is required.",
     "email": "Enter a valid email address.",
     "codeFormat": "Enter the 6-digit code.",
-    "displayNameLength": "The name must be from 1 to 50 characters."
+    "displayNameLength": "The name must be from 1 to 50 characters.",
+    "tripNameLength": "The name must be from 1 to 100 characters.",
+    "endBeforeStart": "The end date cannot be before the start date."
   }
 }

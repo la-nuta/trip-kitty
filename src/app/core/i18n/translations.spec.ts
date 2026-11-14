@@ -45,6 +45,7 @@ function usedKeys(source: string): string[] {
     /\bt\(\s*['"`]([a-zA-Z][\w.]*)['"`]/g,
     /\btranslate(?:<[^>]*>)?\(\s*['"`]([a-zA-Z][\w.]*)['"`]/g,
     /[kK]ey=["']([a-zA-Z][\w.]*\.[\w.]+)["']/g,
+    /['"`]((?:common|auth|profile|trips|invitations|members|errors|validation)\.[\w.]+)['"`]/g,
   ];
   return patterns.flatMap((pattern) =>
     [...source.matchAll(pattern)].map((match) => match[1] as string),

@@ -1,0 +1,50 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <app-form-field labelKey="trips.nameLabel" controlId="trip-name" [errorKey]="nameErrorKey()">
+    <input
+      id="trip-name"
+      type="text"
+      formControlName="name"
+      [attr.aria-invalid]="nameErrorKey() ? 'true' : null"
+      [attr.aria-describedby]="nameErrorKey() ? 'trip-name-error' : null"
+    />
+  </app-form-field>
+
+  <div class="dates">
+    <app-form-field labelKey="trips.startDateLabel" controlId="trip-start">
+      <input id="trip-start" type="date" formControlName="startDate" />
+    </app-form-field>
+
+    <app-form-field
+      labelKey="trips.endDateLabel"
+      controlId="trip-end"
+      [errorKey]="endDateErrorKey()"
+    >
+      <input
+        id="trip-end"
+        type="date"
+        formControlName="endDate"
+        [attr.aria-invalid]="endDateErrorKey() ? 'true' : null"
+        [attr.aria-describedby]="endDateErrorKey() ? 'trip-end-error' : null"
+      />
+    </app-form-field>
+  </div>
+
+  <app-form-field
+    labelKey="trips.currencyLabel"
+    controlId="trip-currency"
+    [errorKey]="currencyErrorKey()"
+  >
+    <app-currency-picker
+      inputId="trip-currency"
+      formControlName="currency"
+      [invalid]="currencyErrorKey() !== null"
+      [describedBy]="currencyErrorKey() ? 'trip-currency-error' : null"
+    />
+  </app-form-field>
+
+  @if (formErrorKey(); as key) {
+    <p class="form-error" role="alert">{{ key | transloco }}</p>
+  }
+
+  <button class="button" type="submit" [disabled]="busy()">{{ submitKey() | transloco }}</button>
+</form>

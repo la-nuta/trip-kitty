@@ -7,7 +7,8 @@
     "notFoundText": "Такой страницы нет, или у вас нет к ней доступа.",
     "toHome": "На главную",
     "comingSoonTitle": "Здесь пока пусто",
-    "comingSoonText": "Этот раздел скоро появится."
+    "comingSoonText": "Этот раздел скоро появится.",
+    "loading": "Загрузка…"
   },
   "auth": {
     "signInTitle": "Вход",
@@ -28,7 +29,33 @@
     "languageLabel": "Язык интерфейса",
     "save": "Продолжить"
   },
-  "trips": {},
+  "trips": {
+    "myTrips": "Мои поездки",
+    "createTrip": "Создать поездку",
+    "emptyTitle": "Поездок пока нет",
+    "emptyText": "Создайте поездку и пригласите друзей по ссылке.",
+    "guestCannotCreate": "Чтобы создать поездку, нужен аккаунт. Присоединяться к поездкам по приглашению можно и так.",
+    "groupCurrent": "Текущие и предстоящие",
+    "groupUndated": "Без дат",
+    "groupPast": "Прошедшие",
+    "noDates": "Даты не указаны",
+    "participantCount": "Участники: {{count}}",
+    "roleOrganizer": "Организатор",
+    "roleParticipant": "Участник",
+    "nameLabel": "Название поездки",
+    "startDateLabel": "Дата начала",
+    "endDateLabel": "Дата окончания",
+    "currencyLabel": "Базовая валюта",
+    "newTitle": "Новая поездка",
+    "editTitle": "Изменить поездку",
+    "create": "Создать поездку",
+    "save": "Сохранить",
+    "edit": "Изменить",
+    "participantsTitle": "Участники",
+    "you": "вы",
+    "backToTrips": "Все поездки",
+    "baseCurrency": "Базовая валюта: {{code}}"
+  },
   "invitations": {},
   "members": {},
   "errors": {
@@ -52,6 +79,8 @@
     "required": "Заполните это поле.",
     "email": "Введите корректный адрес почты.",
     "codeFormat": "Введите код из 6 цифр.",
-    "displayNameLength": "Имя должно содержать от 1 до 50 символов."
+    "displayNameLength": "Имя должно содержать от 1 до 50 символов.",
+    "tripNameLength": "Название должно содержать от 1 до 100 символов.",
+    "endBeforeStart": "Дата окончания не может быть раньше даты начала."
   }
 }

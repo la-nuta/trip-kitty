@@ -79,8 +79,10 @@ people.
 
 8. **Language switch keeps form values** (Story 4, SC-006)
    Start filling the create-trip form, switch the language in the header.
-   Expected: the interface changes language, the form keeps its values; dates are formatted for
-   the new language. Reload: the language stays.
+   Expected: the interface changes language, the form keeps its values; dates in "My trips" and on
+   the trip page are formatted for the new language. The date fields of the form are the browser's
+   own date control, so their format follows the browser or system language (`docs/decisions.md`
+   D8). Reload: the language stays.
 
 9. **Guest → account** (Story 5)
    As Masha, convert to an account by email. Sign in with that email in another browser.

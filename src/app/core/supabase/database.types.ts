@@ -23,7 +23,67 @@ export type Database = {
           }
         },"public": {
           Tables: {
-            "users": {
+            "invitations": {
+                  Row: {
+                    "created_at": string,"token": string,"trip_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"token": string,"trip_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"token"?: string,"trip_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "invitations_trip_id_fkey"
+      columns: ["trip_id"]
+isOneToOne: true
+      referencedRelation: "trips"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"trip_members": {
+                  Row: {
+                    "joined_at": string,"role": string,"status": string,"trip_id": string,"updated_at": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "joined_at"?: string,"role": string,"status": string,"trip_id": string,"updated_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "joined_at"?: string,"role"?: string,"status"?: string,"trip_id"?: string,"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "trip_members_trip_id_fkey"
+      columns: ["trip_id"]
+isOneToOne: false
+      referencedRelation: "trips"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "trip_members_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "users"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"trips": {
+                  Row: {
+                    "base_currency": string,"created_at": string,"end_date": string | null,"id": string,"members_changed_at": string,"name": string,"start_date": string | null,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "base_currency": string,"created_at"?: string,"end_date"?: string | null,"id"?: string,"members_changed_at"?: string,"name": string,"start_date"?: string | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "base_currency"?: string,"created_at"?: string,"end_date"?: string | null,"id"?: string,"members_changed_at"?: string,"name"?: string,"start_date"?: string | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"users": {
                   Row: {
                     "created_at": string,"display_name": string | null,"id": string,"language": string | null,"theme": string | null,"updated_at": string
                   }
@@ -43,7 +103,24 @@ export type Database = {
             [_ in never]: never
           }
           Functions: {
-            [_ in never]: never
+            "create_trip":
+{ Args: { "p_base_currency": string,"p_end_date": string,"p_name": string,"p_start_date": string }; Returns: string
+                           },
+"is_active_member":
+{ Args: { "trip_id": string }; Returns: boolean
+                           },
+"is_organizer":
+{ Args: { "trip_id": string }; Returns: boolean
+                           },
+"shares_trip_with":
+{ Args: { "other_user": string }; Returns: boolean
+                           },
+"update_trip":
+{ Args: { "p_base_currency": string,"p_end_date": string,"p_name": string,"p_start_date": string,"p_trip_id": string }; Returns: undefined
+                           },
+"validate_trip_input":
+{ Args: { "p_base_currency": string,"p_end_date": string,"p_name": string,"p_start_date": string }; Returns: undefined
+                           }
           }
           Enums: {
             [_ in never]: never

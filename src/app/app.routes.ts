@@ -30,17 +30,25 @@ export const routes: Routes = [
       import('./features/profile/profile-setup.page').then((m) => m.ProfileSetupPage),
   },
   { path: 'profile', canActivate: [requireSession], loadComponent: comingSoon },
-  { path: 'trips', canActivate: [requireSession, requireProfile], loadComponent: comingSoon },
+  {
+    path: 'trips',
+    canActivate: [requireSession, requireProfile],
+    loadComponent: () => import('./features/trips/my-trips.page').then((m) => m.MyTripsPage),
+  },
   {
     path: 'trips/new',
     canActivate: [requireSession, requireProfile, requireAccount],
-    loadComponent: comingSoon,
+    loadComponent: () => import('./features/trips/trip-create.page').then((m) => m.TripCreatePage),
   },
-  { path: 'trips/:id', canActivate: [requireSession, requireProfile], loadComponent: comingSoon },
+  {
+    path: 'trips/:id',
+    canActivate: [requireSession, requireProfile],
+    loadComponent: () => import('./features/trips/trip-detail.page').then((m) => m.TripDetailPage),
+  },
   {
     path: 'trips/:id/edit',
     canActivate: [requireSession, requireProfile],
-    loadComponent: comingSoon,
+    loadComponent: () => import('./features/trips/trip-edit.page').then((m) => m.TripEditPage),
   },
   { path: 'join/:token', loadComponent: comingSoon },
   {

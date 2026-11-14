@@ -70,6 +70,22 @@ begin
 end;
 $$;
 
+-- Runs a statement that must fail and returns the DETAIL of its error.
+create or replace function tests.error_detail(statement text) returns text
+language plpgsql
+as $$
+declare
+  detail text;
+begin
+  execute statement;
+  return null;
+exception
+  when others then
+    get stacked diagnostics detail = pg_exception_detail;
+    return detail;
+end;
+$$;
+
 grant execute on all functions in schema tests to anon, authenticated;
 
 select plan(1);

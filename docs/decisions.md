@@ -152,6 +152,28 @@ of the invitation page and "My trips": warm and friendly, calm and clean, bright
   migration.
 - Not decided yet: a mascot, icons, and the look of the other screens.
 
+## D8. Date fields use the browser's date control
+
+**Date:** 2026-11-08
+
+**Context.** The trip form's start and end dates use `<input type="date">`. The browser formats the
+value by its own or the system language, not by the interface language, so a Russian interface in
+an English browser shows `05/10/2027` in the field. Everywhere else dates are formatted with `Intl`
+for the interface language (FR-024).
+
+**Options considered.**
+
+| Option | Finding | Verdict |
+|---|---|---|
+| **Browser date control** | Native pickers on phones, keyboard and screen reader support for free; format follows the browser | **Chosen** |
+| Custom date field in the interface language | Full control of the format, but a calendar widget and its accessibility must be built and tested | Not chosen |
+
+**Decision.** The form keeps the browser's date control. FR-024 applies to dates the app displays
+("My trips", the trip page, the invitation page), not to the format inside the browser's input.
+
+**Consequences.** Quickstart scenario 8 is worded accordingly. A custom date field can be
+reconsidered if users report confusion.
+
 ## Open items
 
 Not decisions yet; to be resolved during `/speckit-plan` for the relevant feature.

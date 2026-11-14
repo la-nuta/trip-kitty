@@ -7,6 +7,7 @@ import { FakeAuth, fakeProfile } from '../testing/fake-auth';
 import { provideTestTransloco } from '../testing/test-transloco';
 import { routes } from './app.routes';
 import { AuthService } from './core/auth/auth.service';
+import { TripsService } from './features/trips/trips.service';
 
 const CONTRACT = readFileSync(
   join(process.cwd(), 'specs/001-trip-invitations/contracts/routes.md'),
@@ -23,6 +24,7 @@ describe('routes', () => {
         provideRouter(routes),
         provideTestTransloco('en'),
         { provide: AuthService, useValue: auth },
+        { provide: TripsService, useValue: { listMyTrips: () => Promise.resolve([]) } },
       ],
     });
   });
@@ -98,10 +100,16 @@ describe('routes', () => {
     expect((await open('/join/abc')).url).toBe('/join/abc');
   });
 
-  it('shows the empty shell at /trips', async () => {
+  it('shows the empty shell at /profile until it is built', async () => {
     auth.signIn();
 
-    expect((await open('/trips')).text).toContain('Nothing here yet');
+    expect((await open('/profile')).text).toContain('Nothing here yet');
+  });
+
+  it('shows "My trips" at /trips', async () => {
+    auth.signIn();
+
+    expect((await open('/trips')).text).toContain('My trips');
   });
 
   it('shows the not-found page for an unknown address', async () => {
